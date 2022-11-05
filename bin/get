@@ -1,0 +1,8 @@
+#!/usr/bin/ruby.ruby3.1 
+# frozen_string_literal: true
+
+require 'rubygems'
+require "bundler/setup"
+require 'get'
+
+Get.main
