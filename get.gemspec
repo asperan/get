@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'lib/get/version'
+
 def source_files
   excludedSources = []
 
@@ -9,10 +11,6 @@ end
 
 def executable_list
   Dir.glob(File.expand_path(__dir__) + '/bin/*')
-end
-
-def calculate_semantic_version
-  '0.1.0'
 end
 
 def retrieve_authors
@@ -29,9 +27,10 @@ end
 
 Gem::Specification.new do |spec|
   spec.name = 'get'
-  spec.version = calculate_semantic_version
+  spec.version = Get::VERSION
   spec.authors = retrieve_authors
   spec.email = retrieve_emails
+  spec.license = 'LGPL-3.0-or-later'
 
   spec.summary = 'Git Enhancement Toolbox'
   spec.homepage = 'https://github.com/asperan/get'
