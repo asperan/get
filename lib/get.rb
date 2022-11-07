@@ -4,6 +4,7 @@ require 'optimist'
 
 require_relative './get/version'
 
+# Entrypoint of Get
 module Get
   class Error < StandardError; end
 
