@@ -3,14 +3,14 @@
 require_relative 'lib/get/version'
 
 def source_files
-  excludedSources = []
+  excluded_sources = []
 
-  Dir.glob(File.expand_path(__dir__) + '/lib/**/*.rb')
-     .filter { |element| !excludedSources.include?(element) }
+  Dir.glob("#{File.expand_path(__dir__)}/lib/**/*.rb")
+     .filter { |element| !excluded_sources.include?(element) }
 end
 
 def executable_list
-  Dir.glob(File.expand_path(__dir__) + '/bin/*')
+  Dir.glob("#{File.expand_path(__dir__)}/bin/*")
 end
 
 def retrieve_authors
