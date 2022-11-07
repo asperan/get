@@ -45,4 +45,5 @@ Gem::Specification.new do |spec|
   spec.executables = spec.name
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
 end
