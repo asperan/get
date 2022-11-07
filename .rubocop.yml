@@ -12,3 +12,7 @@
 # Disabled because it is better to have trailing commas for version control (less deletions)
 Style/TrailingCommaInArrayLiteral:
   Enabled: false
+
+# Disabled because sometimes a programmer knows better what a variable is than a static analyzer
+Style/ClassVars:
+  Enabled: false
