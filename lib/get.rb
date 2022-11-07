@@ -9,7 +9,7 @@ module Get
   class Error < StandardError; end
 
   @@subcommands = { }
-  @@option_parser = Optimist.options do
+  @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage '-h|-v|(<subcommand> [<subcommand-options])'
     synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
@@ -22,7 +22,9 @@ module Get
   end
 
   def self.main
-    options = @@option_parser.parse
+    options = Optimist::with_standard_exception_handling(@@option_parser) {
+      @@option_parser.parse
+    }
     error 'No command or option specified' if ARGV.empty?
     command = ARGV.shift
     if @@subcommands.include?(command.to_sym)
