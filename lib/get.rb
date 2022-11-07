@@ -8,7 +8,7 @@ module Get
   class Error < StandardError; end
 
   @@subcommands = { }
-  @@option_parser = Optimist::options do
+  @@option_parser = Optimist.options do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage '-h|-v|(<subcommand> [<subcommand-options])'
     synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
