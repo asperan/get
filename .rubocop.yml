@@ -13,6 +13,17 @@
 Style/TrailingCommaInArrayLiteral:
   Enabled: false
 
+# Ditto
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
 # Disabled because sometimes a programmer knows better what a variable is than a static analyzer
 Style/ClassVars:
   Enabled: false
+
+# More sane max (from 10) and heredocs are counted as one line (as it is a file read)
+Metrics/MethodLength:
+  Max: 20
+  CountAsOne: [
+    'heredoc',
+  ]
