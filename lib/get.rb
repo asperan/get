@@ -2,13 +2,14 @@
 
 require 'optimist'
 
+require_relative './get/subcommand/describe'
 require_relative './get/version'
 
 # Entrypoint of Get
 module Get
   class Error < StandardError; end
 
-  @@subcommands = { }
+  @@subcommands = { describe: Describe.command, }
   @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage '-h|-v|(<subcommand> [<subcommand-options])'
