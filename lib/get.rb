@@ -27,9 +27,9 @@ module Get
       @@option_parser.parse
     end
     error 'No command or option specified' if ARGV.empty?
-    command = ARGV.shift
-    if @@subcommands.include?(command.to_sym)
-      @@subcommands[command.to_sym].action.call
+    command = ARGV.shift.to_sym
+    if @@subcommands.include?(command)
+      @@subcommands[command].action.call
     else
       error "Unknown subcommand '#{command}'"
     end
