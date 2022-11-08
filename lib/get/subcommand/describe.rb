@@ -32,6 +32,7 @@ class Describe < Command
 
   def initialize
     super(@@usage, @@description) do
+      Common.error 'describe need to be run inside a git repository' unless Common.in_git_repo?
       @options = with_describe_exception_handling @@describe_parser do
         @@describe_parser.parse
       end
