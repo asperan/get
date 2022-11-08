@@ -4,6 +4,7 @@ require 'optimist'
 
 require_relative './get/subcommand/describe'
 require_relative './get/version'
+require_relative './get/common'
 
 # Entrypoint of Get
 module Get
@@ -40,11 +41,8 @@ module Get
   end
 
   def self.error(message)
-    # Change the stdout to stderr for Optimist.educate, as it uses stdout by default
-    # and this method is used in case of errors.
-    $stdout = $stderr
-    puts message.to_s
-    Optimist.educate
-    exit(1)
+    Common.error message do
+      @@option_parser.educate
+    end
   end
 end
