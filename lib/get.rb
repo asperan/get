@@ -2,9 +2,9 @@
 
 require 'optimist'
 
-require_relative './get/subcommand/describe'
-require_relative './get/version'
-require_relative './get/common'
+require 'get/subcommand/describe'
+require 'get/version'
+require 'get/common'
 
 # Entrypoint of Get
 module Get
