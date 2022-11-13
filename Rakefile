@@ -16,6 +16,27 @@ RuboCop::RakeTask.new(:check_style) do |task|
   task.fail_on_error = false
 end
 
+# Check syntax for all lib source files
+task :check_syntax do |task|
+  source_files = FileList['lib/**/*.rb']
+  source_files.each do |element|
+    output = `ruby -c #{element} 2>&1`.chomp
+    if output == 'Syntax OK'
+      puts "#{element}: OK"
+    else
+      puts <<~OUTPUT
+        --- Syntax errors for #{element} ---
+        #{output}
+        ----------------------#{'-' * element.length}----
+      OUTPUT
+    end
+  end
+end
+
+# Run all the check tasks
+task check: [:check_syntax, :check_style] do
+end
+
 task default: :test
 
 # Generation of './lib/get/version.rb' file
