@@ -96,9 +96,9 @@ BEGIN {
 
   def version_file_content
     <<~CONTENT
-      # frozen_string_literal: true
       #{license_header}
       #{generation_comments}
+      # frozen_string_literal: true
       module Get
         VERSION = '#{calculate_semantic_version}'
       end
