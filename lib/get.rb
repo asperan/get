@@ -19,7 +19,7 @@
 
 require 'optimist'
 
-require 'get/subcommand/describe'
+require 'get/subcommand/describe/describe'
 require 'get/version'
 require 'get/common'
 
