@@ -28,6 +28,10 @@ Metrics/MethodLength:
     'heredoc',
   ]
 
+# This is a redundant metric for software size. Software size is already evaluated by Method Length and Class Length.
+Metrics/AbcSize:
+  Enabled: false
+
 AllCops:
   NewCops: enable
 
