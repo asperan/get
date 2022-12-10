@@ -115,9 +115,8 @@ class Describe < Command
       @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
       @@old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
       @@prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
-      current_commit_version = describe_current_commit
-      puts current_commit_version
-      create_signed_tag(current_commit_version) if @options[:create_tag]
+
+      describe_current_commit
     end
   end
 
@@ -138,11 +137,15 @@ class Describe < Command
 
     puts "Last version: #{last_version}" if @options[:diff]
     last_release = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX) { |match_data| match_data[5].nil? }
-    if @options[:prerelease]
-      prepare_prerelease_tag(last_release, last_version)
-    else
-      prepare_release_tag(last_release)
-    end + metadata
+
+    current_commit_version =
+      if @options[:prerelease]
+        prepare_prerelease_tag(last_release, last_version)
+      else
+        prepare_release_tag(last_release)
+      end + metadata
+    puts current_commit_version
+    create_signed_tag(current_commit_version) if @options[:create_tag]
   end
 
   def prepare_release_tag(last_release)
