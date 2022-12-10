@@ -19,6 +19,7 @@
 # It must be tracked by git, but changes should be made via the Rakefile.
 
 # frozen_string_literal: true
+
 module Get
   VERSION = '0.1.0'
 end
