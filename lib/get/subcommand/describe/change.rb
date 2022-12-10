@@ -70,8 +70,6 @@ module ChangeHandler
   public
 
   def greatest_change_in(commit_list)
-    # output = `git log --pretty=%s #{last_stable_version} HEAD 2>/dev/null`
-    # fail "Git did not find version '#{last_stable_version}', greatest change cannot be computed" if output.empty?
     commit_list
       .grep(CONVENTIONAL_COMMIT_REGEX)
       .map(&:to_change)
