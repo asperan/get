@@ -93,6 +93,12 @@ class Describe < Command
         { short: :none, type: :string, default: 'prerelease-pattern value' }
     opt :diff,
         'Print also the last version.'
+    opt :create_tag,
+        'Create a signed tag with the computed version.',
+        { short: :none }
+    opt :tag_message,
+        'Add the given message to the tag. Requires "--create-tag".',
+        { short: :none, type: :string }
     educate_on_error
     stop_on @@subcommands.keys.map(&:to_s)
   end
@@ -109,7 +115,9 @@ class Describe < Command
       @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
       @@old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
       @@prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
-      puts describe_current_commit
+      current_commit_version = describe_current_commit
+      puts current_commit_version
+      create_signed_tag(current_commit_version) if @options[:create_tag]
     end
   end
 
@@ -203,6 +211,20 @@ class Describe < Command
     return '' if @options[:exclude_metadata] || @options[:metadata].empty?
 
     "+#{compute_metadata(@options[:metadata])}"
+  end
+
+  def create_signed_tag(computed_version)
+    system(
+      'git tag -s ' \
+      "#{
+        if @options[:tag_message_given]
+          "-m #{@options[:tag_message]}"
+        else
+          ''
+        end
+      } " \
+      "'#{computed_version}'"
+    )
   end
 end
 # rubocop:enable Metrics/ClassLength
