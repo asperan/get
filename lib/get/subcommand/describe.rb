@@ -102,7 +102,6 @@ class Describe < Command
       @options = with_describe_exception_handling @@describe_parser do
         @@describe_parser.parse
       end
-      puts @options.to_s
       @@major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
       @@minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
       @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
