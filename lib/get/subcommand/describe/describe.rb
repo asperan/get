@@ -91,6 +91,8 @@ class Describe < Command
     opt :old_prerelease_pattern,
         'Set the pattern of the old prerelease. It is useful for changing prerelease pattern.',
         { short: :none, type: :string, default: 'prerelease-pattern value' }
+    opt :diff,
+        'Print also the last version.'
     educate_on_error
     stop_on @@subcommands.keys.map(&:to_s)
   end
@@ -126,6 +128,7 @@ class Describe < Command
     last_version = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX)
     return last_version if with_commit_list_from(last_version, &:empty?)
 
+    puts "Last version: #{last_version}" if @options[:diff]
     last_release = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX) { |match_data| match_data[5].nil? }
     if @options[:prerelease]
       prepare_prerelease_tag(last_release, last_version)
