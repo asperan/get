@@ -49,7 +49,7 @@ module PrereleaseHandler
   public
 
   def compute_prerelease(current_prerelease, need_reset: false)
-    new_prerelease = (need_reset ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1).to_s)
+    new_prerelease = (need_reset ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
     @@prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, new_prerelease)
   end
 end
