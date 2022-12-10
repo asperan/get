@@ -41,7 +41,7 @@ module Get
   end
 
   def self.main
-    options = Optimist.with_standard_exception_handling(@@option_parser) do
+    @options = Optimist.with_standard_exception_handling(@@option_parser) do
       @@option_parser.parse
     end
     error 'No command or option specified' if ARGV.empty?
