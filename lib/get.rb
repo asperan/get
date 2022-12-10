@@ -53,10 +53,6 @@ module Get
     end
   end
 
-  def self.is_module?
-    true
-  end
-
   def self.error(message)
     Common.error message do
       @@option_parser.educate
