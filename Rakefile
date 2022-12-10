@@ -99,6 +99,7 @@ BEGIN {
       #{license_header}
       #{generation_comments}
       # frozen_string_literal: true
+
       module Get
         VERSION = '#{calculate_semantic_version}'
       end
