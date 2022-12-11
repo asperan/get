@@ -28,7 +28,7 @@ module PromptHandler
   @@custom_scopes = []
 
   STRING_VALUE_VALIDATOR = /\s*\S+\s*/
-  BODY_END_DELIMITER = "\n\n\n".freeze
+  BODY_END_DELIMITER = "\n\n\n"
 
   DEFAULT_TYPES = %i[
     feat
@@ -45,7 +45,7 @@ module PromptHandler
 
   def ask_for_type
     extract_types_and_scopes
-    answer = @@cli.choose do |menu|
+    @@cli.choose do |menu|
       menu.flow = :columns_down
       menu.prompt = 'Choose the type of your commit: '
       DEFAULT_TYPES.union(@@custom_types).each do |type|
@@ -62,7 +62,7 @@ module PromptHandler
 
   def ask_for_scope
     extract_types_and_scopes
-    answer = @@cli.choose do |menu|
+    @@cli.choose do |menu|
       menu.flow = :columns_down
       menu.prompt = 'Choose the scope of your commit '
       @@custom_scopes.each do |scope|
@@ -79,13 +79,13 @@ module PromptHandler
   end
 
   def ask_for_breaking
-    @@cli.agree("Does the commit contain a breaking change? (yes/no) ") do |question|
+    @@cli.agree('Does the commit contain a breaking change? (yes/no) ') do |question|
       question.default = false
     end
   end
 
   def ask_for_summary
-    @@cli.ask("The summary of the commit:") do |question|
+    @@cli.ask('The summary of the commit:') do |question|
       question.verify_match = true
       question.validate = STRING_VALUE_VALIDATOR
     end
@@ -93,22 +93,31 @@ module PromptHandler
 
   def ask_for_message
     # This method needs a special implementation as the body message can span multiple lines.
-    @@cli.puts("The body of the commit (ends after 3 new lines):")
+    @@cli.puts('The body of the commit (ends after 3 new lines):')
     @@cli.input.gets(BODY_END_DELIMITER)
   end
 
   private
-  
+
   FIRST_COMMIT = nil
 
+  # This method tries to optimize input parsing by performing multiple operations in one go.
+  # So its complexity is a bit higher as it needs to make multiple checks.
+  # rubocop:disable Metrics/CyclomaticComplexity
   def extract_types_and_scopes
+    return unless @@custom_values_initialized.nil?
+
     Common.with_commit_list_from(FIRST_COMMIT) do |commit_list|
       commit_list.map do |element|
         match = Common::CONVENTIONAL_COMMIT_REGEX.match(element)
-        @@custom_types.append(match[1]) unless match.nil? || DEFAULT_TYPES.include?(match[1].to_sym) || @@custom_types.include?(match[1])
-        @@custom_scopes.append(match[3]) unless match.nil? || match[3].nil? || @@custom_scopes.include?(match[3])
+        next if match.nil?
+
+        type_already_added = DEFAULT_TYPES.include?(match[1].to_sym) || @@custom_types.include?(match[1])
+        @@custom_types.append(match[1]) unless type_already_added
+        @@custom_scopes.append(match[3]) unless match[3].nil? || @@custom_scopes.include?(match[3])
       end
-      @@custom_values_initialized = true
-    end if @@custom_values_initialized.nil?
+    end
+    @@custom_values_initialized = true
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 end
