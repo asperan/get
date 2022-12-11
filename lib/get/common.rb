@@ -19,6 +19,9 @@
 
 # Utility module
 module Common
+  # Groups: 1 = type, 2 = scope with (), 3 = scope, 4 = breaking change
+  CONVENTIONAL_COMMIT_REGEX = /^(\w+)(\((\w+)\))?(!)?:.*/
+
   # Check if the command is called while in a git repository.
   # If the command fails, it is assumed to not be in a git repository.
   def self.in_git_repo?
@@ -46,5 +49,16 @@ module Common
     exit
   rescue Optimist::VersionNeeded
     # Version is not needed in this command
+  end
+
+  # Run a block of code with the list of commits from the given version as an argument.
+  # If the block is not given, this method is a nop.
+  def self.with_commit_list_from(version = nil, &block)
+    return unless block_given?
+
+    commits_from_version =
+      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version}"} HEAD`
+      .split("\n")
+    block.call(commits_from_version)
   end
 end
