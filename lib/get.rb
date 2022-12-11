@@ -20,6 +20,7 @@
 require 'optimist'
 
 require 'get/subcommand/describe/describe'
+require 'get/subcommand/commit/commit'
 require 'get/version'
 require 'get/common'
 
@@ -27,7 +28,10 @@ require 'get/common'
 module Get
   class Error < StandardError; end
 
-  @@subcommands = { describe: Describe.command, }
+  @@subcommands = {
+    describe: Describe.command,
+    commit: Commit.command,
+  }
   @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage '-h|-v|(<subcommand> [<subcommand-options])'
