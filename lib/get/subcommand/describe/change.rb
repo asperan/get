@@ -22,13 +22,6 @@ module ChangeHandler
   # Array with change types in ascending order of importance.
   CHANGE_TYPE = %i[NONE PATCH MINOR MAJOR].freeze
 
-  # Groups:
-  # 1 = type
-  # 2 = scope with ()
-  # 3 = scope
-  # 4 = breaking change
-  CONVENTIONAL_COMMIT_REGEX = /^(\w+)(\((\w+)\))?(!)?:.*/
-
   @@major_trigger = 'is_breaking'
   @@minor_trigger = "type == 'feat'"
   @@patch_trigger = "type == 'fix'"
@@ -58,7 +51,7 @@ module ChangeHandler
   class ::String
     # Convert the string (as a conventional commit string) into a change type.
     def to_change
-      groups = CONVENTIONAL_COMMIT_REGEX.match(self)
+      groups = Common::CONVENTIONAL_COMMIT_REGEX.match(self)
       return :MAJOR if ChangeHandler.triggers_major?(groups[1], groups[3], !groups[4].nil?)
       return :MINOR if ChangeHandler.triggers_minor?(groups[1], groups[2])
       return :PATCH if ChangeHandler.triggers_patch?(groups[1], groups[2])
@@ -71,7 +64,7 @@ module ChangeHandler
 
   def greatest_change_in(commit_list)
     commit_list
-      .grep(CONVENTIONAL_COMMIT_REGEX)
+      .grep(Common::CONVENTIONAL_COMMIT_REGEX)
       .map(&:to_change)
       .max { |a, b| CHANGE_TYPE.index(a) <=> CHANGE_TYPE.index(b) }
   end
