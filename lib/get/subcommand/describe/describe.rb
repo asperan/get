@@ -122,7 +122,7 @@ class Describe < Command
 
   def describe_current_commit
     last_version = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX)
-    return last_version if with_commit_list_from(last_version, &:empty?)
+    return last_version if Common.with_commit_list_from(last_version, &:empty?)
 
     puts "Last version: #{last_version}" if @options[:diff]
     last_release = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX) { |match_data| match_data[5].nil? }
@@ -166,7 +166,7 @@ class Describe < Command
   def updated_stable_version(stable_version)
     return DEFAULT_RELEASE_VERSION if stable_version.nil?
 
-    greatest_change_from_stable_version = with_commit_list_from(stable_version) do |commits_from_version|
+    greatest_change_from_stable_version = Common.with_commit_list_from(stable_version) do |commits_from_version|
       greatest_change_in(commits_from_version)
     end
     split_version = stable_version.split('.')
@@ -185,17 +185,6 @@ class Describe < Command
   # Return the updated prerelease number
   def updated_prerelease(prerelease = nil, need_reset: false)
     compute_prerelease(prerelease, need_reset: prerelease.nil? || need_reset)
-  end
-
-  # Run a block of code with the list of commits from the given version as an argument.
-  # If the block is not given, this method is a nop.
-  def with_commit_list_from(version = nil, &block)
-    return unless block_given?
-
-    commits_from_version =
-      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version}"} HEAD`
-      .split("\n")
-    block.call(commits_from_version)
   end
 
   # Compute the metadata string
