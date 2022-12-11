@@ -34,4 +34,17 @@ module Common
     yield if block_given?
     exit(1)
   end
+
+  # Subcommand exception handling for Optimist.
+  # Generally subcommands do not have a version to print.
+  def self.with_subcommand_exception_handling(parser)
+    yield
+  rescue Optimist::CommandlineError => e
+    parser.die(e.message, nil, e.error_code)
+  rescue Optimist::HelpNeeded
+    parser.educate
+    exit
+  rescue Optimist::VersionNeeded
+    # Version is not needed in this command
+  end
 end
