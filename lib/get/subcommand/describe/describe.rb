@@ -107,7 +107,7 @@ class Describe < Command
   def initialize
     super(@@usage, @@description) do
       Common.error 'describe need to be run inside a git repository' unless Common.in_git_repo?
-      @options = with_describe_exception_handling @@describe_parser do
+      @options = Common.with_subcommand_exception_handling @@describe_parser do
         @@describe_parser.parse
       end
       @@major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
@@ -118,17 +118,6 @@ class Describe < Command
 
       describe_current_commit
     end
-  end
-
-  def with_describe_exception_handling(parser)
-    yield
-  rescue Optimist::CommandlineError => e
-    parser.die(e.message, nil, e.error_code)
-  rescue Optimist::HelpNeeded
-    parser.educate
-    exit
-  rescue Optimist::VersionNeeded
-    # Version is not needed in this command
   end
 
   def describe_current_commit
