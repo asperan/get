@@ -17,6 +17,7 @@
 
 # frozen_string_literal: true
 
+require 'English'
 require 'get/common'
 require 'get/subcommand/command'
 require 'get/subcommand/commit/prompt'
@@ -63,7 +64,9 @@ class Commit < Command
         'Define the message body of the commit. Enabling this option skips the message body prompt.',
         { type: :string }
     opt :breaking,
-        'Set the commit to have a breaking change. Can be negated with "--no-breaking". Enabling this option skips the breaking change prompt.',
+        'Set the commit to have a breaking change. ' \
+        'Can be negated with "--no-breaking". ' \
+        'Enabling this option skips the breaking change prompt.',
         { type: :flag, short: :none }
     educate_on_error
     stop_on @@subcommands.keys.map(&:to_s)
@@ -80,7 +83,7 @@ class Commit < Command
       message = full_commit_message
       puts message
       output = `git commit --no-status -m '#{message}'`
-      Common.error "git commit failed: #{output}" if $?.exitstatus > 0
+      Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
     end
   end
 
@@ -91,7 +94,7 @@ class Commit < Command
     summary = commit_summary
     body = commit_body
     "#{type}" \
-      "#{(scope.nil? || scope.empty? ? '' : "(#{scope})")}" \
+      "#{scope.nil? || scope.empty? ? '' : "(#{scope})"}" \
       "#{breaking ? '!' : ''}" \
       ": #{summary}" \
       "#{body.empty? ? '' : "\n\n#{body}"}"
