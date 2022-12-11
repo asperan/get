@@ -8,6 +8,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
+    highline (2.0.3)
     json (2.6.3)
     minitest (5.16.3)
     optimist (3.0.1)
@@ -38,6 +39,7 @@ PLATFORMS
 
 DEPENDENCIES
   get!
+  highline (~> 2.0.3)
   minitest (~> 5.0)
   rake (~> 13.0)
   rubocop (~> 1.38)
