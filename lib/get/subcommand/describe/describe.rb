@@ -51,7 +51,7 @@ class Describe < Command
   @@usage = 'describe -h|(<subcommand> [<subcommand-options])'
   @@description = 'Describe the current git repository with semantic version'
   @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the numebr of options of the command.
+  # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
   @@describe_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
