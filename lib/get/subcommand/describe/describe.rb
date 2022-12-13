@@ -122,7 +122,10 @@ class Describe < Command
 
   def describe_current_commit
     last_version = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX)
-    return last_version if Common.with_commit_list_from(last_version, &:empty?)
+    if Common.with_commit_list_from(last_version, &:empty?)
+      puts last_version
+      exit 0
+    end
 
     puts "Last version: #{last_version}" if @options[:diff]
     last_release = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX) { |match_data| match_data[5].nil? }
