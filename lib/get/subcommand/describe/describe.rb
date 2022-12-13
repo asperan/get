@@ -152,7 +152,7 @@ class Describe < Command
 
   # Return the last tag matching a regex, or nil if none matches.
   def last_tag_matching(regex, &additional_conditions_on_match)
-    tag_list = `git --no-pager tag --list --sort=-v:refname --merged`.split("\n")
+    tag_list = `git --no-pager tag --list --sort=-v:taggerdate --merged`.split("\n")
     filtered_tag_list = tag_list.filter do |element|
       regex.match?(element) && (!block_given? || additional_conditions_on_match.call(regex.match(element)))
     end
