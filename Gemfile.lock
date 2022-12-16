@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     get (0.1.0)
+      highline (~> 2.0.3)
       optimist (~> 3.0, >= 3.0.1)
 
 GEM
@@ -39,7 +40,6 @@ PLATFORMS
 
 DEPENDENCIES
   get!
-  highline (~> 2.0.3)
   minitest (~> 5.0)
   rake (~> 13.0)
   rubocop (~> 1.38)

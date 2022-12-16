@@ -48,4 +48,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
+  spec.add_dependency 'highline', '~> 2.0.3'
 end
