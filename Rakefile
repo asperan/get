@@ -57,7 +57,7 @@ BEGIN {
           current_version=$(grep 'VERSION = ' "${VERSION_FILE}" | cut -d '=' -f 2 | tr -d "' ")
           described_version=$(exe/get describe | cut -d '+' -f 1)
   
-          if [ "$current_version" == "$described_version" ]; then
+          if [ "$current_version" = "$described_version" ]; then
             echo "Version file is up to date."
           else
             echo "Version file and actual version differs. Update the version file (and move the tag)."
