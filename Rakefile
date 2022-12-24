@@ -88,10 +88,16 @@ BEGIN {
     # the Lesser GPL.  If not, see <https://www.gnu.org/licenses/>.
   LICENSE
 
+  before = <<~BEFORE
+    # Set to exit on the first error
+    set -e
+  BEFORE
+
   HOOKS.each do |element|
     hook_content = <<~CONTENT
       #{shebang}
       #{license}
+      #{before}
       #{element[:scripts].join("\n")}
     CONTENT
 
