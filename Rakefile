@@ -59,8 +59,10 @@ BEGIN {
   
           if [ "$current_version" = "$described_version" ]; then
             echo "Version file is up to date."
+            exit 0
           else
-            echo "Version file and actual version differs. Update the version file (and move the tag)."
+            echo "Version file and actual version differs. Update the version file (and, if needed, move the tag)."
+            exit 1
           fi
         VERSION
       ],
