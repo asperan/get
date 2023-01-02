@@ -1,5 +1,5 @@
 # Get is a toolbox based on git which simplifies the adoption of conventions and some git commands.
-# Copyright (C) 2022  Alex Speranza
+# Copyright (C) 2023  Alex Speranza
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
