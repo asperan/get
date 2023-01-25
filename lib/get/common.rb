@@ -61,4 +61,12 @@ module Common
       .split("\n")
     block.call(commits_from_version)
   end
+
+  # Print the given message and exit the program with the given exit status.
+  def self.print_message_and_exit(message, exit_status = 0)
+    $stdout = $stderr unless exit_status == 0
+
+    puts message
+    exit(exit_status)
+  end
 end
