@@ -84,6 +84,8 @@ class Commit < Command
       puts message
       output = `git commit --no-status -m '#{message}'`
       Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
+    rescue Interrupt
+      Common.print_message_and_exit "\nCommit cancelled"
     end
   end
 
