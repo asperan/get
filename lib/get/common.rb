@@ -31,11 +31,8 @@ module Common
   # Print an error message and optionally run a block.
   # Stdout becomes stderr, so every print is performed to stderr.
   # This behavior is wanted as this method is called on errors.
-  def self.error(message)
-    $stdout = $stderr
-    puts "Error: #{message}"
-    yield if block_given?
-    exit(1)
+  def self.error(message, &block)
+    Common.print_then_do_and_exit("Error: #{message}", 1, block)
   end
 
   # Subcommand exception handling for Optimist.
@@ -62,11 +59,14 @@ module Common
     block.call(commits_from_version)
   end
 
-  # Print the given message and exit the program with the given exit status.
-  def self.print_message_and_exit(message, exit_status = 0)
-    $stdout = $stderr unless exit_status == 0
+  # Print the given message, execute a block if given,
+  # and exit the program with the given exit status.
+  # If exit_status is not 0, the stdout is redirected to stderr.
+  def self.print_then_do_and_exit(message, exit_code = 0, action = proc {})
+    $stdout = $stderr unless exit_code.zero?
 
     puts message
-    exit(exit_status)
+    action.call
+    exit(exit_code)
   end
 end
