@@ -121,14 +121,12 @@ class Describe < Command
   end
 
   def describe_current_commit
-    last_version = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX)
     if Common.with_commit_list_from(last_version, &:empty?)
       puts last_version
       exit 0
     end
 
     puts "Last version: #{last_version}" if @options[:diff]
-    last_release = last_tag_matching(FULL_SEMANTIC_VERSION_REGEX) { |match_data| match_data[5].nil? }
 
     current_commit_version =
       if @options[:prerelease]
@@ -153,17 +151,14 @@ class Describe < Command
       "-#{updated_prerelease(base_version_match_data[5], need_reset: base_version_match_data[1] != new_stable_version)}"
   end
 
-  # Return the last tag matching a regex, or nil if none matches.
-  def last_tag_matching(regex, &additional_conditions_on_match)
-    tag_list = `git --no-pager tag --list --sort=-v:taggerdate --merged`.split("\n")
-    filtered_tag_list = tag_list.filter do |element|
-      regex.match?(element) && (!block_given? || additional_conditions_on_match.call(regex.match(element)))
-    end
-    if filtered_tag_list.empty?
-      nil
-    else
-      filtered_tag_list.first
-    end
+  # Returns the last version and caches it for the next calls.
+  def last_version
+    @last_version ||= `git describe --tags --abbrev=0`.strip
+  end
+
+  # Returns the last release and caches it for the next calls.
+  def last_release
+    @last_release||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
   end
 
   def updated_stable_version(stable_version)
