@@ -158,7 +158,7 @@ class Describe < Command
 
   # Returns the last release and caches it for the next calls.
   def last_release
-    @last_release||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
+    @last_release ||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
   end
 
   def updated_stable_version(stable_version)

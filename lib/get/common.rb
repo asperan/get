@@ -66,7 +66,7 @@ module Common
     $stdout = $stderr unless exit_code.zero?
 
     puts message
-    action.call if action.respond_to?("call")
+    action.call if action.respond_to?('call')
     exit(exit_code)
   end
 end
