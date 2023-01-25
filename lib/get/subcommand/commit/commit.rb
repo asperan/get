@@ -82,7 +82,7 @@ class Commit < Command
 
       message = full_commit_message
       puts message
-      output = `git commit --no-status -m '#{message}'`
+      output = `git commit --no-status -m "#{message.gsub('"', '\"')}"`
       Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
     rescue Interrupt
       Common.print_then_do_and_exit "\nCommit cancelled"
