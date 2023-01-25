@@ -17,8 +17,23 @@ Or install it yourself as:
     $ gem install get
 
 ## Usage
+`get` is a toolbox for git: you can write `get -h` to view the available subcommands and options. Subcommands have the option `-h` too.
 
-TODO: Write usage instructions here
+This is the structure of the help text:
+```
+Usage: get -h|-v|(<subcommand> [<subcommand-options])
+Subcommands:
+  describe => Describe the current git repository with semantic version
+  commit   => Create a new semantic commit
+  init     => Initialize a new git repository with an initial empty commit
+
+
+Get version: 0.3.0
+Options:
+  -v, --version    Print version and exit
+  -h, --help       Show this message
+
+```
 
 ## Development
 
