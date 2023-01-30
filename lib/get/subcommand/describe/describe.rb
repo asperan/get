@@ -21,6 +21,7 @@ require 'get/subcommand/command'
 require 'get/subcommand/describe/change'
 require 'get/subcommand/describe/prerelease'
 require 'get/subcommand/describe/metadata'
+require 'get/subcommand/describe/docker/docker'
 
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
@@ -50,7 +51,9 @@ class Describe < Command
 
   @@usage = 'describe -h|(<subcommand> [<subcommand-options])'
   @@description = 'Describe the current git repository with semantic version'
-  @@subcommands = {}
+  @@subcommands = {
+    docker: DescribeDocker.command,
+  }
   # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
   @@describe_parser = Optimist::Parser.new do
