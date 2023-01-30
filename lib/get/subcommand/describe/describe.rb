@@ -110,27 +110,39 @@ class Describe < Command
       @options = Common.with_subcommand_exception_handling @@describe_parser do
         @@describe_parser.parse
       end
-      @@major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
-      @@minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
-      @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
-      @@old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
-      @@prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
+      set_options
 
-      describe_current_commit
+      if ARGV.length.positive?
+        subcommand = ARGV.shift.to_sym
+        if @@subcommands.include?(subcommand)
+          @@subcommands[subcommand].action.call(describe_current_commit)
+        else
+          $stderr.puts "Error: subcommand '#{subcommand}' unknown."
+          exit 1
+        end
+      else
+        puts describe_current_commit
+      end
     end
   end
 
+  def set_options
+    @@major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
+    @@minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
+    @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
+    @@old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
+    @@prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
+  end
+
   def describe_current_commit
-    if Common.with_commit_list_from(last_version, &:empty?)
-      puts last_version
-      exit 0
-    end
+    return last_version if Common.with_commit_list_from(last_version, &:empty?)
 
     puts "Last version: #{last_version}" if @options[:diff]
 
     current_commit_version = next_release
-    puts current_commit_version
     create_signed_tag(current_commit_version) if @options[:create_tag]
+
+    current_commit_version
   end
 
   def next_release
