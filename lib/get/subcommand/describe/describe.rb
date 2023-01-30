@@ -128,14 +128,17 @@ class Describe < Command
 
     puts "Last version: #{last_version}" if @options[:diff]
 
-    current_commit_version =
-      if @options[:prerelease]
-        prepare_prerelease_tag(last_release, last_version)
-      else
-        prepare_release_tag(last_release)
-      end + metadata
+    current_commit_version = next_release
     puts current_commit_version
     create_signed_tag(current_commit_version) if @options[:create_tag]
+  end
+
+  def next_release
+    if @options[:prerelease]
+      prepare_prerelease_tag(last_release, last_version)
+    else
+      prepare_release_tag(last_release)
+    end + metadata
   end
 
   def prepare_release_tag(last_release)
