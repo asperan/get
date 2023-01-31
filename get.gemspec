@@ -28,7 +28,7 @@ class Gem::Specification
 end
 
 Gem::Specification.new do |spec|
-  spec.name = 'get'
+  spec.name = 'git_toolbox'
   spec.version = Get::VERSION
   spec.authors = spec.retrieve_authors
   spec.email = spec.retrieve_emails
@@ -40,11 +40,12 @@ Gem::Specification.new do |spec|
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/asperan/get'
+  spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.files = spec.source_files
   spec.bindir = 'bin'
-  spec.executables = spec.name
+  spec.executables = ['get']
   spec.require_paths = ['lib']
 
   spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'

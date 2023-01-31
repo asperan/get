@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    get (0.4.0)
+    git_toolbox (0.4.0)
       highline (~> 2.0.3)
       optimist (~> 3.0, >= 3.0.1)
 
@@ -39,7 +39,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  get!
+  git_toolbox!
   minitest (~> 5.0)
   rake (~> 13.0)
   rubocop (~> 1.38)
