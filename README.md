@@ -5,7 +5,7 @@ Get is a toolbox based on git. Get simplifies the adoption of semantic version, 
 Get is considered a standalone gem, so it is not designed to be a dependency, but if needed you can add this line to your application's Gemfile:
 
 ```ruby
-gem 'get'
+gem 'git_toolbox', '~> 0.4.0'
 ```
 
 And then execute:
@@ -14,7 +14,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install get
+    $ gem install git_toolbox
 
 ## Usage
 `get` is a toolbox for git: you can write `get -h` to view the available subcommands and options. Subcommands have the option `-h` too.
