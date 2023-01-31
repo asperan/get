@@ -3,15 +3,11 @@
 require_relative 'lib/get/version'
 
 class Gem::Specification
-  def source_files
-    excluded_sources = []
+  def included_files
+    excluded_files = []
 
-    Dir.glob("#{File.expand_path(__dir__)}/lib/**/*.rb")
-       .filter { |element| !excluded_sources.include?(element) }
-  end
-
-  def executable_list
-    Dir.glob("#{File.expand_path(__dir__)}/bin/*")
+    (Dir['lib/**/*.rb'] + Dir['bin/*'])
+       .filter { |element| !excluded_files.include?(element) }
   end
 
   def retrieve_authors
@@ -43,7 +39,7 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   spec.metadata['rubygems_mfa_required'] = 'true'
 
-  spec.files = spec.source_files
+  spec.files = spec.included_files
   spec.bindir = 'bin'
   spec.executables = ['get']
   spec.require_paths = ['lib']
