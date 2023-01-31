@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'English'
+
 # Utility module
 module Common
   # Groups: 1 = type, 2 = scope with (), 3 = scope, 4 = breaking change
@@ -26,6 +28,11 @@ module Common
   # If the command fails, it is assumed to not be in a git repository.
   def self.in_git_repo?
     system('git rev-parse --is-inside-work-tree &>/dev/null')
+    case $CHILD_STATUS.exitstatus
+    when 0 then true
+    when 127 then Common.error '"git" is not installed.'
+    else false
+    end
   end
 
   # Print an error message and optionally run a block.
