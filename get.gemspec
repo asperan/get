@@ -6,7 +6,7 @@ class Gem::Specification
   def included_files
     excluded_files = []
 
-    (Dir['lib/**/*.rb'] + Dir['bin/*'])
+    (Dir['lib/**/*'] + Dir['bin/*'])
        .filter { |element| !excluded_files.include?(element) }
   end
 
