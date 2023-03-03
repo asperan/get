@@ -34,8 +34,6 @@ class Init < Command
 
   private
 
-  include PromptHandler
-
   @@command = nil
 
   @@usage = 'init -h|(<subcommand> [<subcommand-options])'
