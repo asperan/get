@@ -15,13 +15,14 @@
 # along with this program and the additional permissions granted by
 # the Lesser GPL.  If not, see <https://www.gnu.org/licenses/>.
 
+# frozen_string_literal: true
+
 require 'highline'
 
 # The retrieving module for licenses. It can gather licenses online (from https://choosealicense.com/appendix/)
 # or offline (from a predefined subset of licenses).
 module Retriever
-
-  BASE_OFFLINE_LICENSE_PATH = File.dirname(File.expand_path(__FILE__)) + '/offline_licenses'
+  BASE_OFFLINE_LICENSE_PATH = "#{File.dirname(File.expand_path(__FILE__))}/offline_licenses".freeze
   BASE_ONLINE_LICENSE_URI = 'https://choosealicense.com'
 
   @@cli = HighLine.new
@@ -55,7 +56,7 @@ module Retriever
   end
 
   def online_license_list
-    @@online_licenses = Hash.new
+    @@online_licenses = {}
     text = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}/appendix/" | grep '<th scope="row">'`.strip
     if $CHILD_STATUS.exitstatus.positive?
       puts 'WARNING: Unable to retrieve list of online licenses, falling back to offline ones.'
@@ -63,7 +64,7 @@ module Retriever
       offline_license_list
     else
       text.split("\n").each do |element|
-        match_result = element.match(/<a href="(.*)">(.*)<\/a>/)
+        match_result = element.match(%r{<a href="(.*)">(.*)</a>})
         @@online_licenses[match_result[2]] = match_result[1]
       end
       @@online_licenses.keys
@@ -71,14 +72,14 @@ module Retriever
   end
 
   def offline_license_text(license)
-    File.read(BASE_OFFLINE_LICENSE_PATH + '/' + license + '/LICENSE')
+    File.read("#{BASE_OFFLINE_LICENSE_PATH}/#{license}/LICENSE")
   end
 
   def online_license_text(license)
     page = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}#{@@online_licenses[license]}"`
     Common.error 'Failed to retrieve the license text.' if $CHILD_STATUS.exitstatus.positive?
 
-    match_result = page.match(/<pre id="license-text">(.*)<\/pre>/m)
+    match_result = page.match(%r{<pre id="license-text">(.*)</pre>}m)
     Common.error 'Invalid license text' if match_result[1].nil?
 
     match_result[1]

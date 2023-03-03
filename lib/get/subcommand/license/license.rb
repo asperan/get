@@ -16,6 +16,7 @@
 # the Lesser GPL.  If not, see <https://www.gnu.org/licenses/>.
 
 # frozen_string_literal: true
+
 require 'get/common'
 require 'get/subcommand/command'
 require 'get/subcommand/license/license_retriever'
@@ -38,9 +39,9 @@ class License < Command
   @@command = nil
 
   @@usage = 'license -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Create a new LICENSE file with the chosen license.' \
-                  ' Online licenses are retrieved from https://choosealicense.com/appendix/ .' \
-                  ' Head there for more information about the licences.'
+  @@description = 'Create a new LICENSE file with the chosen license. ' \
+                  'Online licenses are retrieved from https://choosealicense.com/appendix/ . ' \
+                  'Head there for more information about the licences.'
   @@subcommands = {}
   # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
@@ -51,7 +52,7 @@ class License < Command
       #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
     SUBCOMMANDS
     usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + "#{subcommand_section}"
+    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
     opt :offline,
         'Force the application to use the offline licenses.'
     opt :create_commit,
@@ -77,11 +78,11 @@ class License < Command
 
       create_license_file
 
-      if !Common.in_git_repo?
-        Common.error 'Not in a git repository: a commit cannot be created.'
-      else
+      if @options[:create_commit]
+        Common.error 'Not in a git repository: a commit cannot be created.' unless Common.in_git_repo?
+
         create_license_commit
-      end if @options[:create_commit]
+      end
     end
   end
 
