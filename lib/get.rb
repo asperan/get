@@ -22,6 +22,7 @@ require 'optimist'
 require 'get/subcommand/describe/describe'
 require 'get/subcommand/commit/commit'
 require 'get/subcommand/init/init'
+require 'get/subcommand/license/license'
 require 'get/version'
 require 'get/common'
 
@@ -33,6 +34,7 @@ module Get
     describe: Describe.command,
     commit: Commit.command,
     init: Init.command,
+    license: License.command,
   }
   @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
