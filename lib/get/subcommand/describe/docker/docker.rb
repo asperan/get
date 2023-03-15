@@ -41,7 +41,7 @@ class DescribeDocker < Command
   @@subcommands = {}
   # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
-  @@describe_parser = Optimist::Parser.new do
+  @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage @@usage
     synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
@@ -65,8 +65,8 @@ class DescribeDocker < Command
   def initialize
     super(@@usage, @@description) do |version|
       Common.error 'describe need to be run inside a git repository' unless Common.in_git_repo?
-      @options = Common.with_subcommand_exception_handling @@describe_parser do
-        @@describe_parser.parse
+      @options = Common.with_subcommand_exception_handling @@option_parser do
+        @@option_parser.parse
       end
       set_options
 

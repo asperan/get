@@ -41,7 +41,7 @@ class Init < Command
   @@subcommands = {}
   # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
-  @@commit_parser = Optimist::Parser.new do
+  @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
     usage @@usage
     synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
@@ -57,8 +57,8 @@ class Init < Command
 
   def initialize
     super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@commit_parser do
-        @@commit_parser.parse
+      @options = Common.with_subcommand_exception_handling @@option_parser do
+        @@option_parser.parse
       end
       Common.error 'The current directory is already a git repository' if Common.in_git_repo?
 
