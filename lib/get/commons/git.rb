@@ -46,4 +46,14 @@ module Git
       .split("\n")
     block.call(commits_from_version)
   end
+
+  # Returns the last version and caches it for the next calls.
+  def self.last_version
+    @@last_version ||= `git describe --tags --abbrev=0`.strip
+  end
+
+  # Returns the last release and caches it for the next calls.
+  def self.last_release
+    @@last_release ||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
+  end
 end

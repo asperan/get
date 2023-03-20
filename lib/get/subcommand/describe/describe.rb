@@ -143,9 +143,9 @@ class Describe < Command
   end
 
   def describe_current_commit
-    return last_version if Git.with_commit_list_from(last_version, &:empty?)
+    return Git.last_version if Git.with_commit_list_from(Git.last_version, &:empty?)
 
-    puts "Last version: #{last_version}" if @options[:diff]
+    puts "Last version: #{Git.last_version}" if @options[:diff]
 
     current_commit_version = next_release
     create_signed_tag(current_commit_version) if @options[:create_tag]
@@ -155,9 +155,9 @@ class Describe < Command
 
   def next_release
     if @options[:prerelease]
-      prepare_prerelease_tag(last_release, last_version)
+      prepare_prerelease_tag(Git.last_release, Git.last_version)
     else
-      prepare_release_tag(last_release)
+      prepare_release_tag(Git.last_release)
     end + metadata
   end
 
@@ -172,16 +172,6 @@ class Describe < Command
     Common.error 'No changes from last release' if no_changes_from_last_release
     new_stable_version +
       "-#{updated_prerelease(base_version_match_data[5], need_reset: base_version_match_data[1] != new_stable_version)}"
-  end
-
-  # Returns the last version and caches it for the next calls.
-  def last_version
-    @last_version ||= `git describe --tags --abbrev=0`.strip
-  end
-
-  # Returns the last release and caches it for the next calls.
-  def last_release
-    @last_release ||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
   end
 
   def updated_stable_version(stable_version)
