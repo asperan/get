@@ -25,7 +25,7 @@ require 'get/subcommand/init/init'
 require 'get/subcommand/license/license'
 require 'get/subcommand/complete/complete'
 require 'get/version'
-require 'get/common'
+require 'get/commons/common'
 
 # Entrypoint of Get
 module Get

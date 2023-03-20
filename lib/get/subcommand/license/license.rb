@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'get/common'
+require 'get/commons/common'
 require 'get/subcommand/command'
 require 'get/subcommand/license/license_retriever'
 

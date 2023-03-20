@@ -18,7 +18,7 @@
 # frozen_string_literal: true
 
 require 'English'
-require 'get/common'
+require 'get/commons/common'
 require 'get/subcommand/command'
 
 # Class length is disabled as most of its length is given by formatting.
