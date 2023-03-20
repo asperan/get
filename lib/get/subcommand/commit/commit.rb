@@ -41,17 +41,18 @@ class Commit < Command
   @@command = nil
 
   @@usage = 'commit -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Create a new semantic commit'
+  @@description = 'Create a new semantic commit.'
   @@subcommands = {}
   # This block is Optimist configuration. It is as long as the number of options of the command.
   # rubocop:disable Metrics/BlockLength
   @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    usage @@usage
-    synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
+    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
       Subcommands:
       #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
     SUBCOMMANDS
+    usage @@usage
+    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
     opt :type,
         'Define the type of the commit. Enabling this option skips the type selection.',
         { type: :string }

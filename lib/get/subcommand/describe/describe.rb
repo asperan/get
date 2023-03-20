@@ -52,7 +52,7 @@ class Describe < Command
     /x
 
   @@usage = 'describe -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Describe the current git repository with semantic version'
+  @@description = 'Describe the current git repository with semantic version.'
   @@subcommands = {
     docker: DescribeDocker.command,
   }
@@ -60,11 +60,12 @@ class Describe < Command
   # rubocop:disable Metrics/BlockLength
   @@option_parser = Optimist::Parser.new do
     subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    usage @@usage
-    synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
+    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
       Subcommands:
       #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
     SUBCOMMANDS
+    usage @@usage
+    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
     opt :prerelease,
         'Describe a prerelease rather than a release',
         short: :none
