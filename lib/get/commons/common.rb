@@ -21,20 +21,6 @@ require 'English'
 
 # Utility module
 module Common
-  # Groups: 1 = type, 2 = scope with (), 3 = scope, 4 = breaking change
-  CONVENTIONAL_COMMIT_REGEX = /^(\w+)(\((\w+)\))?(!)?:.*/
-
-  # Check if the command is called while in a git repository.
-  # If the command fails, it is assumed to not be in a git repository.
-  def self.in_git_repo?
-    system('git rev-parse --is-inside-work-tree &>/dev/null')
-    case $CHILD_STATUS.exitstatus
-    when 0 then true
-    when 127 then Common.error '"git" is not installed.'
-    else false
-    end
-  end
-
   # Print an error message and optionally run a block.
   # Stdout becomes stderr, so every print is performed to stderr.
   # This behavior is wanted as this method is called on errors.
@@ -53,17 +39,6 @@ module Common
     exit
   rescue Optimist::VersionNeeded
     # Version is not needed in this command
-  end
-
-  # Run a block of code with the list of commits from the given version as an argument.
-  # If the block is not given, this method is a nop.
-  def self.with_commit_list_from(version = nil, &block)
-    return unless block_given?
-
-    commits_from_version =
-      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version}"} HEAD`
-      .split("\n")
-    block.call(commits_from_version)
   end
 
   # Print the given message, execute a block if given,
