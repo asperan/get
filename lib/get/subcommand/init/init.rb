@@ -19,6 +19,7 @@
 
 require 'English'
 require 'get/commons/common'
+require 'get/commons/git'
 require 'get/subcommand/command'
 
 # Class length is disabled as most of its length is given by formatting.
@@ -60,7 +61,7 @@ class Init < Command
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end
-      Common.error 'The current directory is already a git repository' if Common.in_git_repo?
+      Common.error 'The current directory is already a git repository' if Git.in_repo?
 
       init_repository
     end

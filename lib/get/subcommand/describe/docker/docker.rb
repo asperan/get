@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'get/commons/common'
+require 'get/commons/git'
 require 'get/subcommand/command'
 
 # Class length is disabled as most of its length is given by formatting.
@@ -64,7 +66,7 @@ class DescribeDocker < Command
 
   def initialize
     super(@@usage, @@description) do |version|
-      Common.error 'describe need to be run inside a git repository' unless Common.in_git_repo?
+      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end

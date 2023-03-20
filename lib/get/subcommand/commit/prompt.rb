@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 require 'highline'
+require 'get/commons/git'
 
 # Module for asking to the user informations about a commit message.
 module PromptHandler
@@ -107,9 +108,9 @@ module PromptHandler
   def extract_types_and_scopes
     return unless @@custom_values_initialized.nil?
 
-    Common.with_commit_list_from(FIRST_COMMIT) do |commit_list|
+    Git.with_commit_list_from(FIRST_COMMIT) do |commit_list|
       commit_list.map do |element|
-        match = Common::CONVENTIONAL_COMMIT_REGEX.match(element)
+        match = Git::CONVENTIONAL_COMMIT_REGEX.match(element)
         next if match.nil?
 
         type_already_added = DEFAULT_TYPES.include?(match[1].to_sym) || @@custom_types.include?(match[1])

@@ -19,6 +19,7 @@
 
 require 'English'
 require 'get/commons/common'
+require 'get/commons/git'
 require 'get/subcommand/command'
 require 'get/subcommand/commit/prompt'
 
@@ -75,7 +76,7 @@ class Commit < Command
 
   def initialize
     super(@@usage, @@description) do
-      Common.error 'commit need to be run inside a git repository' unless Common.in_git_repo?
+      Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end

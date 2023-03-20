@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 require 'get/commons/common'
+require 'get/commons/git'
 require 'get/subcommand/command'
 require 'get/subcommand/license/license_retriever'
 
@@ -79,7 +80,7 @@ class License < Command
       create_license_file
 
       if @options[:create_commit]
-        Common.error 'Not in a git repository: a commit cannot be created.' unless Common.in_git_repo?
+        Common.error 'Not in a git repository: a commit cannot be created.' unless Git.in_repo?
 
         create_license_commit
       end

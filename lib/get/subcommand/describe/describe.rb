@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'get/commons/common'
+require 'get/commons/git'
 require 'get/subcommand/command'
 require 'get/subcommand/describe/change'
 require 'get/subcommand/describe/prerelease'
@@ -109,7 +111,7 @@ class Describe < Command
 
   def initialize
     super(@@usage, @@description) do
-      Common.error 'describe need to be run inside a git repository' unless Common.in_git_repo?
+      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end
@@ -141,7 +143,7 @@ class Describe < Command
   end
 
   def describe_current_commit
-    return last_version if Common.with_commit_list_from(last_version, &:empty?)
+    return last_version if Git.with_commit_list_from(last_version, &:empty?)
 
     puts "Last version: #{last_version}" if @options[:diff]
 
@@ -185,7 +187,7 @@ class Describe < Command
   def updated_stable_version(stable_version)
     return DEFAULT_RELEASE_VERSION if stable_version.nil?
 
-    greatest_change_from_stable_version = Common.with_commit_list_from(stable_version) do |commits_from_version|
+    greatest_change_from_stable_version = Git.with_commit_list_from(stable_version) do |commits_from_version|
       greatest_change_in(commits_from_version)
     end
     split_version = stable_version.split('.')
