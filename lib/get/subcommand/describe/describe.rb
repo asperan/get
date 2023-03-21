@@ -112,10 +112,10 @@ class Describe < Command
 
   def initialize
     super(@@usage, @@description) do
-      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end
+      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       set_options
 
       if ARGV.length.positive?

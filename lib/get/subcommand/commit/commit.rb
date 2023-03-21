@@ -77,10 +77,10 @@ class Commit < Command
 
   def initialize
     super(@@usage, @@description) do
-      Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @@option_parser do
         @@option_parser.parse
       end
+      Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
 
       message = full_commit_message
       puts message
