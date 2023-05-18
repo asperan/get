@@ -18,5 +18,5 @@
 # frozen_string_literal: true
 
 module Get
-  VERSION = '0.7.0'
+  VERSION = '0.7.1'
 end
