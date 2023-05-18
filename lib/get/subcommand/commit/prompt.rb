@@ -65,7 +65,7 @@ module PromptHandler
     extract_types_and_scopes
     @@cli.choose do |menu|
       menu.flow = :columns_down
-      menu.prompt = 'Choose the scope of your commit '
+      menu.prompt = 'Choose the scope of your commit: '
       @@custom_scopes.each do |scope|
         menu.choice(scope.to_sym)
       end
