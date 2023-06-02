@@ -81,6 +81,8 @@ class Tree < Command
   TIME_MINIMUM_PADDING = 2
 
   def transform_log(text)
+    return 'This repository has no commit.' if text.empty?
+
     split_lines = text.split("\n").map { |element| element.split('§') }
     # The first line is always a commit line, so it always have a time reference
     first_line_time = split_lines.first[1]
