@@ -144,14 +144,20 @@ class Describe < Command
   end
 
   def describe_current_commit
-    return Git.last_version if Git.with_commit_list_from(Git.last_version, &:empty?)
+    if Git.with_commit_list_from(Git.last_version, &:empty?)
+      if Git.last_version.nil?
+        Common.error('Cannot describe an empty repository.')
+      else
+        Git.last_version
+      end
+    else
+      puts "Last version: #{Git.last_version}" if @options[:diff]
 
-    puts "Last version: #{Git.last_version}" if @options[:diff]
+      current_commit_version = next_release
+      create_signed_tag(current_commit_version) if @options[:create_tag]
 
-    current_commit_version = next_release
-    create_signed_tag(current_commit_version) if @options[:create_tag]
-
-    current_commit_version
+      current_commit_version
+    end
   end
 
   def next_release
