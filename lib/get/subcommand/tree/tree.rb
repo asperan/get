@@ -80,6 +80,7 @@ class Tree < Command
   TIME_REGEX = /(\([a-z0-9 ,]+\))/
   TIME_MINIMUM_PADDING = 2
 
+  # rubocop:disable Metrics/MethodLength
   def transform_log(text)
     return 'This repository has no commit.' if text.empty?
 
@@ -112,6 +113,7 @@ class Tree < Command
       end
       .join("\n")
   end
+  # rubocop:enable Metrics/MethodLength
 
   def page_log(text)
     system("less -RfS <(echo -e '#{text}')")
