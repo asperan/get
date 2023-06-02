@@ -42,18 +42,25 @@ module Git
     return unless block_given?
 
     commits_from_version =
-      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version}"} HEAD`
+      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version} HEAD"} 2>/dev/null`
       .split("\n")
+      .then { |value| $CHILD_STATUS.exitstatus.zero? ? value : [] }
     block.call(commits_from_version)
   end
 
   # Returns the last version and caches it for the next calls.
   def self.last_version
-    @@last_version ||= `git describe --tags --abbrev=0`.strip
+    @@last_version ||=
+      `git describe --tags --abbrev=0 2>/dev/null`
+      .strip
+      .then { |value| value if $CHILD_STATUS.exitstatus.zero? }
   end
 
   # Returns the last release and caches it for the next calls.
   def self.last_release
-    @@last_release ||= `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`.strip
+    @@last_release ||=
+      `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`
+      .strip
+      .then { |value| value unless value.empty? }
   end
 end
