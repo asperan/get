@@ -139,7 +139,7 @@ class Changelog < Command
     formatted_types = []
     changelog.except('feat', 'fix').each { |key, value| formatted_types.push(format_type(key, value)) }
     <<~CHANGELOG
-      #{@format[:title].sub('%s', "Changelog from version #{from_version}")}
+      #{@format[:title].sub('%s', "Changelog from #{from_version.nil? ? 'first commit' : "version #{from_version}"}")}
       #{(formatted_features + formatted_fixes + formatted_types).join("\n").strip}
     CHANGELOG
   end
