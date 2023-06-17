@@ -22,50 +22,48 @@ module ChangeHandler
   # Array with change types in ascending order of importance.
   CHANGE_TYPE = %i[NONE PATCH MINOR MAJOR].freeze
 
-  @@major_trigger = 'is_breaking'
-  @@minor_trigger = "type == 'feat'"
-  @@patch_trigger = "type == 'fix'"
+  DEFAULT_MAJOR_TRIGGER = 'is_breaking'
+  DEFAULT_MINOR_TRIGGER = "type == 'feat'"
+  DEFAULT_PATCH_TRIGGER = "type == 'fix'"
 
-  module_function
+  Common.module_instance_attr(self, 'major_trigger', :DEFAULT_MAJOR_TRIGGER)
+  Common.module_instance_attr(self, 'minor_trigger', :DEFAULT_MINOR_TRIGGER)
+  Common.module_instance_attr(self, 'patch_trigger', :DEFAULT_PATCH_TRIGGER)
+
+  def greatest_change_in(commit_list)
+    commit_list
+      .grep(Git::CONVENTIONAL_COMMIT_REGEX)
+      .map { |commit| to_change(commit) }
+      .max { |a, b| CHANGE_TYPE.index(a) <=> CHANGE_TYPE.index(b) }
+  end
+
+  private
 
   # In this block method arguments can be used by user.
   # Also `eval` is needed to allow users to define their custom triggers.
   # rubocop:disable Lint/UnusedMethodArgument
   # rubocop:disable Security/Eval
   def triggers_major?(type, scope, is_breaking)
-    eval(@@major_trigger)
+    eval(ChangeHandler.major_trigger)
   end
 
   def triggers_minor?(type, scope)
-    eval(@@minor_trigger)
+    eval(ChangeHandler.minor_trigger)
   end
 
   def triggers_patch?(type, scope)
-    eval(@@patch_trigger)
+    eval(ChangeHandler.patch_trigger)
   end
   # rubocop:enable Lint/UnusedMethodArgument
   # rubocop:enable Security/Eval
 
-  # Open String class to inject method to convert a (commit) string into
-  # a change.
-  class ::String
-    # Convert the string (as a conventional commit string) into a change type.
-    def to_change
-      groups = Git::CONVENTIONAL_COMMIT_REGEX.match(self)
-      return :MAJOR if ChangeHandler.triggers_major?(groups[1], groups[3], !groups[4].nil?)
-      return :MINOR if ChangeHandler.triggers_minor?(groups[1], groups[2])
-      return :PATCH if ChangeHandler.triggers_patch?(groups[1], groups[2])
+  # Convert the string (as a conventional commit string) into a change type.
+  def to_change(commit_message)
+    groups = Git::CONVENTIONAL_COMMIT_REGEX.match(commit_message)
+    return :MAJOR if triggers_major?(groups[1], groups[3], !groups[4].nil?)
+    return :MINOR if triggers_minor?(groups[1], groups[2])
+    return :PATCH if triggers_patch?(groups[1], groups[2])
 
-      :NONE
-    end
-  end
-
-  public
-
-  def greatest_change_in(commit_list)
-    commit_list
-      .grep(Git::CONVENTIONAL_COMMIT_REGEX)
-      .map(&:to_change)
-      .max { |a, b| CHANGE_TYPE.index(a) <=> CHANGE_TYPE.index(b) }
+    :NONE
   end
 end
