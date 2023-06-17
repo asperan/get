@@ -17,6 +17,4 @@
 
 # frozen_string_literal: true
 
-module Get
-  VERSION = '0.7.2'
-end
+GET_VERSION = '0.7.2'
