@@ -28,21 +28,15 @@ require 'get/subcommand/describe/docker/docker'
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
 # Subcommand, it manages the description of the current git repository using semantic version.
+# All its subcommands should have a method named "describe_current_commit" as it will be called.
 class Describe < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
+  include Singleton
 
   private
 
   include ChangeHandler
   include PrereleaseHandler
   include MetadataHandler
-
-  @@command = nil
 
   DEFAULT_RELEASE_VERSION = '0.1.0'
   FULL_SEMANTIC_VERSION_REGEX = /
@@ -51,77 +45,77 @@ class Describe < Command
       (?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$ # metadata
     /x
 
-  @@usage = 'describe -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Describe the current git repository with semantic version.'
-  @@subcommands = {
-    docker: DescribeDocker.command,
-  }
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
-    opt :prerelease,
-        'Describe a prerelease rather than a release',
-        short: :none
-    opt :exclude_metadata,
-        'Do not include metadata in version.'
-    opt :metadata,
-        'Set which metadata to include in the string. ' \
-        'Multiple value can be specified by separating the with a comma \',\'.',
-        { type: :string, default: 'sha' }
-    opt :major_trigger,
-        'Set the trigger for a major release. ' \
-        'This must be a valid Ruby expression. ' \
-        'In this expression the string values "type" and "scope" ' \
-        'and the boolean value "is_breaking" can be used.',
-        { short: :none, type: :string, default: 'is_breaking' }
-    opt :minor_trigger,
-        'Set the trigger for a minor release. ' \
-        'This must be a valid Ruby expression. ' \
-        'In this expression the string values "type" and "scope" can be used.',
-        { short: :none, type: :string, default: "type == 'feat'" }
-    opt :patch_trigger,
-        'Set the trigger for a patch release. ' \
-        'This must be a valid Ruby expression. ' \
-        'In this expression the string values "type" and "scope" can be used.',
-        { short: :none, type: :string, default: "type == 'fix'" }
-    opt :prerelease_pattern,
-        'Set the pattern of the prerelease. This must contain the placeholder "(p)".',
-        { short: :none, type: :string, default: 'dev(p)' }
-    opt :old_prerelease_pattern,
-        'Set the pattern of the old prerelease. It is useful for changing prerelease pattern.',
-        { short: :none, type: :string, default: 'prerelease-pattern value' }
-    opt :diff,
-        'Print also the last version.'
-    opt :create_tag,
-        'Create a signed tag with the computed version.',
-        { short: :none }
-    opt :tag_message,
-        'Add the given message to the tag. Requires "--create-tag".',
-        { short: :none, type: :string }
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+    super() do
+      @usage = 'describe -h|(<subcommand> [<subcommand-options])'
+      @description = 'Describe the current git repository with semantic version.'
+      @subcommands = {
+        docker: DescribeDocker.instance,
+      }
+    end
+    # This block is Optimist configuration. It is as long as the number of options of the command.
+    # rubocop:disable Metrics/BlockLength
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition,
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :prerelease,
+          'Describe a prerelease rather than a release',
+          short: :none
+      opt :exclude_metadata,
+          'Do not include metadata in version.'
+      opt :metadata,
+          'Set which metadata to include in the string. ' \
+          'Multiple value can be specified by separating the with a comma \',\'.',
+          { type: :string, default: 'sha' }
+      opt :major_trigger,
+          'Set the trigger for a major release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" ' \
+          'and the boolean value "is_breaking" can be used.',
+          { short: :none, type: :string, default: 'is_breaking' }
+      opt :minor_trigger,
+          'Set the trigger for a minor release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" can be used.',
+          { short: :none, type: :string, default: "type == 'feat'" }
+      opt :patch_trigger,
+          'Set the trigger for a patch release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" can be used.',
+          { short: :none, type: :string, default: "type == 'fix'" }
+      opt :prerelease_pattern,
+          'Set the pattern of the prerelease. This must contain the placeholder "(p)".',
+          { short: :none, type: :string, default: 'dev(p)' }
+      opt :old_prerelease_pattern,
+          'Set the pattern of the old prerelease. It is useful for changing prerelease pattern.',
+          { short: :none, type: :string, default: 'prerelease-pattern value' }
+      opt :diff,
+          'Print also the last version.'
+      opt :create_tag,
+          'Create a signed tag with the computed version.',
+          { short: :none }
+      opt :tag_message,
+          'Add the given message to the tag. Requires "--create-tag".',
+          { short: :none, type: :string }
+      educate_on_error
+      stop_on stop_condition
+    end
+    # rubocop:enable Metrics/BlockLength
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
       Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       set_options
 
       if ARGV.length.positive?
         subcommand = ARGV.shift.to_sym
-        if @@subcommands.include?(subcommand)
-          @@subcommands[subcommand].action.call(describe_current_commit)
+        if @subcommands.include?(subcommand)
+          @subcommands[subcommand].action.call(describe_current_commit)
         else
           # This error should not be disabled by -W0
           # rubocop:disable Style/StderrPuts
@@ -136,11 +130,11 @@ class Describe < Command
   end
 
   def set_options
-    @@major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
-    @@minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
-    @@patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
-    @@old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
-    @@prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
+    ChangeHandler.major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
+    ChangeHandler.minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
+    ChangeHandler.patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
+    PrereleaseHandler.old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
+    PrereleaseHandler.prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
   end
 
   def describe_current_commit
