@@ -17,15 +17,40 @@
 
 # frozen_string_literal: true
 
-# Base class for (sub)commands. (Sub)Commands should be singletons.
+require 'singleton'
+
+# Base class for (sub)commands.
 class Command
-  attr_reader :description, :action
+  include Singleton
+
+  attr_reader :usage, :description, :action, :subcommands, :option_parser
 
   protected
 
-  def initialize(usage, description, &action)
-    @usage = usage
-    @description = description
-    @action = action
+  attr_writer :usage, :description, :action, :subcommands, :option_parser
+
+  def initialize
+    super
+    yield self if block_given?
+  end
+
+  @description = ''
+  @subcommands = {}
+
+  def full_description
+    description + if subcommands.empty?
+                    ''
+                  else
+                    subcommand_max_length = subcommands.keys.map { |k| k.to_s.length }.max || 0
+                    <<~SUBCOMMANDS
+                      
+                      Subcommands:
+                      #{subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{subcommands[k].description}" }.join("\n")}
+                    SUBCOMMANDS
+                  end
+  end
+
+  def stop_condition
+    subcommands.keys.map(&:to_s)
   end
 end
