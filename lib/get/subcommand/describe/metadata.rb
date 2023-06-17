@@ -21,9 +21,15 @@
 #
 # To add a new metadata type, create a new method and link it to a symbol.
 module MetadataHandler
-  @@metadata_computers = {}
+  def compute_metadata(metadata_specs)
+    requested_metadata = metadata_specs.split(',')
+    unless requested_metadata.all? { |element| metadata_computers.include?(element.to_sym) }
+      Common.error('Some of the metadata requested are not supported')
+    end
+    requested_metadata.map { |element| metadata_computers[element.to_sym].call }.join('-')
+  end
 
-  module_function
+  private
 
   def last_commit_sha
     `git --no-pager log -n 1 --pretty=%h`.strip
@@ -33,21 +39,10 @@ module MetadataHandler
     Time.now.strftime('%0Y%0m%0d')
   end
 
-  def init_computers
-    @@metadata_computers[:sha] = proc { last_commit_sha }
-    @@metadata_computers[:date] = proc { current_date }
-  end
-
-  public
-
-  def compute_metadata(metadata_specs)
-    metadata_specs
-      .split(',')
-      .map { |element| @@metadata_computers[element.to_sym].call }
-      .join('-')
-  end
-
-  def self.included(_mod)
-    init_computers
+  def metadata_computers
+    @metadata_computers ||= {
+      sha: proc { last_commit_sha },
+      date: proc { current_date },
+    }
   end
 end
