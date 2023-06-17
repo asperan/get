@@ -25,74 +25,66 @@ require 'get/subcommand/command'
 # rubocop:disable Metrics/ClassLength
 # Subcommand, it manages the description of the current git repository using semantic version.
 class DescribeDocker < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
-
   private
 
   INCREMENTAL_VERSION_PATTERN = /(((\d+)\.\d+)\.\d+)/
 
-  @@command = nil
-
-  @@usage = 'describe docker -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Describe the current git repository with a list of version for docker'
-  @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    usage @@usage
-    synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    opt :separator,
-        'Use the given value as separator for versions',
-        { type: :string, default: '\n' }
-    opt :not_latest,
-        'Do not include "latest" in the version list.',
-        short: :none
-    opt :substitute_plus,
-        'Set which character will be used in place of "+".',
-        { type: :string, short: :none }
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do |version|
+    super() do
+      @usage = 'describe docker -h|(<subcommand> [<subcommand-options])'
+      @description = 'Describe the current git repository with a list of version for docker'
+      @subcommands = {}
+    end
+    # This block is Optimist configuration. It is as long as the number of options of the command.
+    # rubocop:disable Metrics/BlockLength
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :separator,
+          'Use the given value as separator for versions',
+          { type: :string, default: '\n' }
+      opt :not_latest,
+          'Do not include "latest" in the version list.',
+          short: :none
+      opt :substitute_plus,
+          'Set which character will be used in place of "+".',
+          { type: :string, short: :none }
+      educate_on_error
+      stop_on stop_condition
+    end
+    # rubocop:enable Metrics/BlockLength
+    @action = lambda do |version|
       Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
       set_options
 
-      puts version_list_from(version).join(@@separator)
+      puts version_list_from(version).join(@separator)
     end
   end
 
   def set_options
-    @@separator = if @options[:separator_given]
-                    @options[:separator]
-                  else
-                    "\n"
-                  end
-    @@not_latest = @options[:not_latest]
-    @@plus_substitution = if @options[:substitute_plus_given]
-                            @options[:substitute_plus]
-                          else
-                            '+'
-                          end
+    @separator = if @options[:separator_given]
+                   @options[:separator]
+                 else
+                   "\n"
+                 end
+    @not_latest = @options[:not_latest]
+    @plus_substitution = if @options[:substitute_plus_given]
+                           @options[:substitute_plus]
+                         else
+                           '+'
+                         end
   end
 
   def version_list_from(full_version)
     [
-      full_version.sub('+', @@plus_substitution),
+      full_version.sub('+', @plus_substitution),
       reduced_versions(full_version),
       latest
     ]
