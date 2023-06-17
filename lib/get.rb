@@ -28,40 +28,48 @@ require 'get/subcommand/changelog/changelog'
 require 'get/subcommand/tree/tree'
 require 'get/version'
 require 'get/commons/common'
+require 'get/subcommand/command'
 
-# Entrypoint of Get
-module Get
+# Main command of Get.
+class Get < Command
   class Error < StandardError; end
 
-  @@subcommands = {
-    describe: Describe.command,
-    commit: Commit.command,
-    init: Init.command,
-    license: License.command,
-    complete: Complete.command,
-    changelog: Changelog.command,
-    tree: Tree.command,
-  }
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    usage '-h|-v|(<subcommand> [<subcommand-options])'
-    synopsis <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    version "Get version: #{Get::VERSION}"
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
+  def initialize
+    super() do
+      @usage = '-h|-v|(<subcommand> [<subcommand-options])'
+      @description = ''
+      @subcommands = {
+        describe: Describe.instance,
+        commit: Commit.command,
+        init: Init.instance,
+        license: License.command,
+        complete: Complete.command,
+        changelog: Changelog.command,
+        tree: Tree.command,
+      }
+    end
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      GET_VERSION,
+      stop_condition
+    ) do |usage_header, description, version, stop_condition|
+      usage usage_header
+      synopsis description
+      version "Get version: #{version}"
+      educate_on_error
+      stop_on stop_condition
+    end
   end
 
-  def self.main
-    @options = Optimist.with_standard_exception_handling(@@option_parser) do
-      @@option_parser.parse
+  def main
+    @options = Optimist.with_standard_exception_handling(@option_parser) do
+      @option_parser.parse
     end
     error 'No command or option specified' if ARGV.empty?
     command = ARGV.shift.to_sym
-    if @@subcommands.include?(command)
-      @@subcommands[command].action.call
+    if @subcommands.include?(command)
+      @subcommands[command].action.call
     else
       error "Unknown subcommand '#{command}'"
     end
@@ -69,7 +77,7 @@ module Get
 
   def self.error(message)
     Common.error message do
-      @@option_parser.educate
+      @option_parser.educate
     end
   end
 end

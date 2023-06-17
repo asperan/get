@@ -5,4 +5,4 @@ require 'rubygems'
 require 'bundler/setup'
 require 'get'
 
-Get.main
+Get.instance.main
