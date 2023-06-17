@@ -51,4 +51,35 @@ module Common
     action.call if action.respond_to?('call')
     exit(exit_code)
   end
+
+  # Add an instance attribute (with a default value) to a module.
+  # It is intended to be called in the body of a module definition:
+  #    module MyModule
+  #       DEFAULT_VALUE = 1
+  #       Common.module_instance_attr(self, my_variable, DEFAULT_VALUE)
+  #    end
+  # produces the code:
+  #    module MyModule
+  #       instance_variable_set(:@my_variable, 1)
+  #       def self.my_variable
+  #         instance_variable_get(:@my_variable)
+  #       end
+  #
+  #       def self.my_variable=(value)
+  #         instance_variable_set(:@my_variable, value)
+  #       end
+  #    end
+  def self.module_instance_attr(mod, name, default_value = nil)
+    mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      instance_variable_set(:@#{name}, #{default_value})
+
+      def self.#{name}
+        instance_variable_get(:@#{name})
+      end
+
+      def self.#{name}=(value)
+        instance_variable_set(:@#{name}, value)
+      end
+    CODE
+  end
 end
