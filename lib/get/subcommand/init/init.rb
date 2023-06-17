@@ -26,41 +26,32 @@ require 'get/subcommand/command'
 # rubocop:disable Metrics/ClassLength
 # Subcommand, it allow to create a new repository and add an initial, empty commit to it.
 class Init < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
-
   private
 
-  @@command = nil
-
-  @@usage = 'init -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Initialize a new git repository with an initial empty commit.'
-  @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
-    opt :empty,
-        'Do not create the first, empty commit.'
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+    super() do
+      @usage = 'init -h|(<subcommand> [<subcommand-options])'
+      @description = 'Initialize a new git repository with an initial empty commit.'
+      @subcommands = {}
+    end
+    # This block is Optimist configuration. It is as long as the number of options of the command.
+    # rubocop:disable Metrics/BlockLength
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :empty,
+          'Do not create the first, empty commit.'
+      educate_on_error
+      stop_on stop_condition
+    end
+    # rubocop:enable Metrics/BlockLength
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
       Common.error 'The current directory is already a git repository' if Git.in_repo?
 
