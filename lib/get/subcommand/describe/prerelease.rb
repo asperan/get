@@ -22,18 +22,24 @@ module PrereleaseHandler
   FIRST_PRERELEASE = 1
   DEFAULT_PRERELEASE_STRING = 'dev'
   PRERELEASE_PLACEHOLDER = '(p)'
+  DEFAULT_PRERELEASE_PATTERN = "#{DEFAULT_PRERELEASE_STRING}#{PRERELEASE_PLACEHOLDER}".freeze
 
-  @@prerelease_pattern = "#{DEFAULT_PRERELEASE_STRING}#{PRERELEASE_PLACEHOLDER}"
-  @@old_prerelease_pattern = proc { @@prerelease_pattern }
+  Common.module_instance_attr(self, 'prerelease_pattern', :DEFAULT_PRERELEASE_PATTERN)
+  Common.module_instance_attr(self, 'old_prerelease_pattern', 'proc { prerelease_pattern }')
 
-  module_function
+  def compute_prerelease(current_prerelease, need_reset: false)
+    new_prerelease = (need_reset ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
+    PrereleaseHandler.prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, new_prerelease)
+  end
+
+  private
 
   def extract_prerelease_number(current_prerelease)
     actual_old_prerelease_pattern =
-      if @@old_prerelease_pattern.respond_to?('call')
-        @@old_prerelease_pattern.call
+      if PrereleaseHandler.old_prerelease_pattern.respond_to?('call')
+        PrereleaseHandler.old_prerelease_pattern.call
       else
-        @@old_prerelease_pattern
+        PrereleaseHandler.old_prerelease_pattern
       end
     Common.error "The given old pattern does not contains the placeholder '(p)'" unless
       actual_old_prerelease_pattern.include?(PRERELEASE_PLACEHOLDER)
@@ -44,12 +50,5 @@ module PrereleaseHandler
       Common.error "The given old prerelease pattern '#{actual_old_prerelease_pattern}' " \
                    "does not match the analyzed prerelease: '#{current_prerelease}'."
     end
-  end
-
-  public
-
-  def compute_prerelease(current_prerelease, need_reset: false)
-    new_prerelease = (need_reset ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
-    @@prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, new_prerelease)
   end
 end
