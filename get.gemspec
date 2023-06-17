@@ -25,7 +25,7 @@ end
 
 Gem::Specification.new do |spec|
   spec.name = 'git_toolbox'
-  spec.version = Get::VERSION
+  spec.version = GET_VERSION
   spec.authors = spec.retrieve_authors
   spec.email = spec.retrieve_emails
   spec.license = 'LGPL-3.0-or-later'
@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
   spec.executables = ['get']
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
   spec.add_dependency 'highline', '~> 2.0.3'
+  spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
+  spec.add_dependency 'singleton', '~> 0.1.1'
 end
