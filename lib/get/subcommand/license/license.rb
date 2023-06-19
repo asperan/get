@@ -26,51 +26,21 @@ require 'get/subcommand/license/license_retriever'
 # rubocop:disable Metrics/ClassLength
 # Subcommand, it allow to choose a license.
 class License < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
-
   private
 
   include Retriever
 
-  @@command = nil
-
-  @@usage = 'license -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Create a new LICENSE file with the chosen license. ' \
-                  'Online licenses are retrieved from https://choosealicense.com/appendix/ . ' \
-                  'Head there for more information about the licences.'
-  @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
-    opt :offline,
-        'Force the application to use the offline licenses.'
-    opt :create_commit,
-        'Create a commit which adds the LICENSE file to the repository history.',
-        short: :none
-    opt :commit_type,
-        'Select the type of the commit. No effect if "--create-commit" is not given.',
-        default: 'chore'
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+    super() do
+      @usage = 'license -h|(<subcommand> [<subcommand-options])'
+      @description = 'Create a new LICENSE file with the chosen license. ' \
+                     'Online licenses are retrieved from https://choosealicense.com/appendix/ . ' \
+                     'Head there for more information about the licences.'
+      @subcommands = {}
+    end
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
 
       @filename = 'LICENSE'
@@ -102,6 +72,29 @@ class License < Command
     Common.error 'Failed to create license commit' if $CHILD_STATUS.exitstatus.positive?
 
     puts 'License file committed.'
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :offline,
+          'Force the application to use the offline licenses.'
+      opt :create_commit,
+          'Create a commit which adds the LICENSE file to the repository history.',
+          short: :none
+      opt :commit_type,
+          'Select the type of the commit. No effect if "--create-commit" is not given.',
+          default: 'chore'
+      educate_on_error
+      stop_on stop_condition
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
