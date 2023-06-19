@@ -82,4 +82,21 @@ module Common
       end
     CODE
   end
+
+  def self.module_instance_value(mod, name, value)
+    mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      instance_variable_set(:@#{name}, #{value})
+
+      def self.#{name}
+        instance_variable_get(:@#{name})
+      end
+    CODE
+  end
+
+  # Add a new 'MOD_REF' constant with the module symbol for a shorter variable name.
+  def self.add_module_self_reference(mod)
+    mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      MOD_REF = #{mod.name}
+    CODE
+  end
 end
