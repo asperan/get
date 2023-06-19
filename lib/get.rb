@@ -40,12 +40,12 @@ class Get < Command
       @description = ''
       @subcommands = {
         describe: Describe.instance,
-        commit: Commit.command,
+        commit: Commit.instance,
         init: Init.instance,
-        license: License.command,
-        complete: Complete.command,
-        changelog: Changelog.command,
-        tree: Tree.command,
+        license: License.instance,
+        complete: Complete.instance,
+        changelog: Changelog.instance,
+        tree: Tree.instance,
       }
     end
     @option_parser = Optimist::Parser.new(
