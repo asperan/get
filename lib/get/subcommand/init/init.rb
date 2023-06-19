@@ -34,14 +34,6 @@ class Init < Command
       @description = 'Initialize a new git repository with an initial empty commit.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      Common.error 'The current directory is already a git repository' if Git.in_repo?
-
-      init_repository
-    end
   end
 
   def init_repository
@@ -76,6 +68,17 @@ class Init < Command
       stop_on stop_condition
     end
     # rubocop:enable Metrics/BlockLength
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      Common.error 'The current directory is already a git repository' if Git.in_repo?
+
+      init_repository
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength

@@ -35,15 +35,6 @@ class DescribeDocker < Command
       @description = 'Describe the current git repository with a list of version for docker'
       @subcommands = {}
     end
-    @action = lambda do |version|
-      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      set_options
-
-      puts version_list_from(version).join(@separator)
-    end
   end
 
   def set_options
@@ -106,6 +97,18 @@ class DescribeDocker < Command
           { type: :string, short: :none }
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do |version|
+      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      set_options
+
+      puts version_list_from(version).join(@separator)
     end
   end
 end

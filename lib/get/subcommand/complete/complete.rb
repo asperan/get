@@ -37,21 +37,6 @@ class Complete < Command
       @description = 'Print the shell completion script.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-
-      @completions = {
-        bash: proc { bash_completion(Get, 'get') }
-      }
-
-      selected_shell = @options[:shell].to_sym
-
-      Common.error "Completion for shell '#{selected_shell}' not available." unless @completions.key?(selected_shell)
-
-      puts @completions[selected_shell].call
-    end
   end
 
   protected
@@ -69,6 +54,24 @@ class Complete < Command
           { type: :string, default: 'bash' }
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+
+      @completions = {
+        bash: proc { bash_completion(Get, 'get') }
+      }
+
+      selected_shell = @options[:shell].to_sym
+
+      Common.error "Completion for shell '#{selected_shell}' not available." unless @completions.key?(selected_shell)
+
+      puts @completions[selected_shell].call
     end
   end
 end

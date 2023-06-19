@@ -33,9 +33,14 @@ class Command
     super
     yield self if block_given?
     setup_option_parser
-    return unless @option_parser.nil?
+    if @option_parser.nil?
+      raise("No variable '@option_parser' has been created in the option_parser setup of command #{self.class.name}.")
+    end
 
-    raise("No variable '@option_parser' has been created in the option_parser setup of command #{self.class.name}.")
+    setup_action
+    if @action.nil?
+      raise("No variable '@action' has been created in the action setup of the command #{self.class.name}")
+    end
   end
 
   @description = ''
@@ -45,6 +50,12 @@ class Command
   # Do not call 'super' in the new implementation.
   def setup_option_parser
     raise("Error: command #{self.class.name} do not have a defined option parser.")
+  end
+
+  # This method must be overridden by subclasses to create a new option parser in a '@action' variable.
+  # Do not call 'super' in the new implementation.
+  def setup_action
+    raise("Error: command #{self.class.name} do not have a defined action.")
   end
 
   def full_description

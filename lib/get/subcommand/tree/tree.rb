@@ -34,14 +34,6 @@ class Tree < Command
       @description = 'Print the tree of commits.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      Common.error 'tree need to be run inside a git repository' unless Git.in_repo?
-
-      view_tree
-    end
   end
 
   def view_tree
@@ -109,6 +101,17 @@ class Tree < Command
       synopsis description
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      Common.error 'tree need to be run inside a git repository' unless Git.in_repo?
+
+      view_tree
     end
   end
 end

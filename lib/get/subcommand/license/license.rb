@@ -38,23 +38,6 @@ class License < Command
                      'Head there for more information about the licences.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-
-      @filename = 'LICENSE'
-
-      Common.error "The file '#{@filename}' already exists." if File.exist?(File.expand_path(@filename))
-
-      create_license_file
-
-      if @options[:create_commit]
-        Common.error 'Not in a git repository: a commit cannot be created.' unless Git.in_repo?
-
-        create_license_commit
-      end
-    end
   end
 
   def create_license_file
@@ -94,6 +77,26 @@ class License < Command
           default: 'chore'
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+
+      @filename = 'LICENSE'
+
+      Common.error "The file '#{@filename}' already exists." if File.exist?(File.expand_path(@filename))
+
+      create_license_file
+
+      if @options[:create_commit]
+        Common.error 'Not in a git repository: a commit cannot be created.' unless Git.in_repo?
+
+        create_license_commit
+      end
     end
   end
 end

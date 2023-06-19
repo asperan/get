@@ -37,19 +37,6 @@ class Commit < Command
       @description = 'Create a new semantic commit.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
-
-      message = full_commit_message
-      puts message
-      output = `git commit --no-status -m "#{message.gsub('"', '\"')}"`
-      Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
-    rescue Interrupt
-      Common.print_then_do_and_exit "\nCommit cancelled"
-    end
   end
 
   def full_commit_message
@@ -130,6 +117,22 @@ class Commit < Command
           { type: :flag, short: :none }
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
+
+      message = full_commit_message
+      puts message
+      output = `git commit --no-status -m "#{message.gsub('"', '\"')}"`
+      Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
+    rescue Interrupt
+      Common.print_then_do_and_exit "\nCommit cancelled"
     end
   end
 end

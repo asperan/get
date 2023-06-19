@@ -53,28 +53,6 @@ class Describe < Command
         docker: DescribeDocker.instance,
       }
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
-      set_options
-
-      if ARGV.length.positive?
-        subcommand = ARGV.shift.to_sym
-        if @subcommands.include?(subcommand)
-          @subcommands[subcommand].action.call(describe_current_commit)
-        else
-          # This error should not be disabled by -W0
-          # rubocop:disable Style/StderrPuts
-          $stderr.puts "Error: subcommand '#{subcommand}' unknown."
-          # rubocop:enable Style/StderrPuts
-          exit 1
-        end
-      else
-        puts describe_current_commit
-      end
-    end
   end
 
   def set_options
@@ -219,6 +197,31 @@ class Describe < Command
           { short: :none, type: :string }
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
+      set_options
+
+      if ARGV.length.positive?
+        subcommand = ARGV.shift.to_sym
+        if @subcommands.include?(subcommand)
+          @subcommands[subcommand].action.call(describe_current_commit)
+        else
+          # This error should not be disabled by -W0
+          # rubocop:disable Style/StderrPuts
+          $stderr.puts "Error: subcommand '#{subcommand}' unknown."
+          # rubocop:enable Style/StderrPuts
+          exit 1
+        end
+      else
+        puts describe_current_commit
+      end
     end
   end
 end

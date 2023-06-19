@@ -43,16 +43,6 @@ class Changelog < Command
       @description = 'Generate a changelog. Format options require a "%s" where the content must be.'
       @subcommands = {}
     end
-    @action = lambda do
-      @options = Common.with_subcommand_exception_handling @option_parser do
-        @option_parser.parse
-      end
-      Common.error 'changelog need to be run inside a git repository' unless Git.in_repo?
-      @format = {}
-      set_format
-
-      puts changelog_from(@options[:latest] ? Git.last_version : Git.last_release)
-    end
   end
 
   def set_format
@@ -152,6 +142,19 @@ class Changelog < Command
           'Can be overwritten by the single options.'
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
+      end
+      Common.error 'changelog need to be run inside a git repository' unless Git.in_repo?
+      @format = {}
+      set_format
+
+      puts changelog_from(@options[:latest] ? Git.last_version : Git.last_release)
     end
   end
 end

@@ -51,16 +51,7 @@ class Get < Command
   end
 
   def main
-    @options = Optimist.with_standard_exception_handling(@option_parser) do
-      @option_parser.parse
-    end
-    error 'No command or option specified' if ARGV.empty?
-    command = ARGV.shift.to_sym
-    if @subcommands.include?(command)
-      @subcommands[command].action.call
-    else
-      error "Unknown subcommand '#{command}'"
-    end
+    @action.call
   end
 
   def self.error(message)
@@ -83,6 +74,21 @@ class Get < Command
       version "Get version: #{version}"
       educate_on_error
       stop_on stop_condition
+    end
+  end
+
+  def setup_action
+    @action = lambda do
+      @options = Optimist.with_standard_exception_handling(@option_parser) do
+        @option_parser.parse
+      end
+      error 'No command or option specified' if ARGV.empty?
+      command = ARGV.shift.to_sym
+      if @subcommands.include?(command)
+        @subcommands[command].action.call
+      else
+        error "Unknown subcommand '#{command}'"
+      end
     end
   end
 end
