@@ -23,7 +23,7 @@ require 'get/commons/common'
 # Utility module
 module Git
   # Groups: 1 = type, 2 = scope with (), 3 = scope, 4 = breaking change, 5 = summary
-  CONVENTIONAL_COMMIT_REGEX = /^(\w+)(\(([\w-]+)\))?(!)?:(.*)/
+  CONVENTIONAL_COMMIT_REGEX = %r{^(\w+)(\(([\w/-]+)\))?(!)?:(.*)}
 
   # Check if the command is called while in a git repository.
   # If the command fails, it is assumed to not be in a git repository.
