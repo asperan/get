@@ -25,24 +25,25 @@ module Retriever
   BASE_OFFLINE_LICENSE_PATH = "#{File.dirname(File.expand_path(__FILE__))}/offline_licenses".freeze
   BASE_ONLINE_LICENSE_URI = 'https://choosealicense.com'
 
-  @@cli = HighLine.new
+  Common.module_instance_value(self, 'cli', 'HighLine.new')
+  Common.add_module_self_reference(self)
 
   def ask_for_license(offline)
-    @@offline = offline
-    list = if @@offline
+    @offline = offline
+    list = if @offline
              offline_license_list
            else
              online_license_list
            end
 
-    @@cli.puts 'Choose which license you want to use:'
-    choice = @@cli.choose do |menu|
+    MOD_REF.cli.puts 'Choose which license you want to use:'
+    choice = MOD_REF.cli.choose do |menu|
       menu.flow = :column_down
       menu.prompt = ''
       list.each { |element| menu.choice(element) }
     end
 
-    if @@offline
+    if @offline
       offline_license_text(choice)
     else
       online_license_text(choice)
@@ -56,18 +57,18 @@ module Retriever
   end
 
   def online_license_list
-    @@online_licenses = {}
+    @online_licenses = {}
     text = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}/appendix/" | grep '<th scope="row">'`.strip
     if $CHILD_STATUS.exitstatus.positive?
       puts 'WARNING: Unable to retrieve list of online licenses, falling back to offline ones.'
-      @@offline = true
+      @offline = true
       offline_license_list
     else
       text.split("\n").each do |element|
         match_result = element.match(%r{<a href="(.*)">(.*)</a>})
-        @@online_licenses[match_result[2]] = match_result[1]
+        @online_licenses[match_result[2]] = match_result[1]
       end
-      @@online_licenses.keys
+      @online_licenses.keys
     end
   end
 
@@ -76,7 +77,7 @@ module Retriever
   end
 
   def online_license_text(license)
-    page = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}#{@@online_licenses[license]}"`
+    page = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}#{@online_licenses[license]}"`
     Common.error 'Failed to retrieve the license text.' if $CHILD_STATUS.exitstatus.positive?
 
     match_result = page.match(%r{<pre id="license-text">(.*)</pre>}m)
