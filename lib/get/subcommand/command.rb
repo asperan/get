@@ -32,10 +32,20 @@ class Command
   def initialize
     super
     yield self if block_given?
+    setup_option_parser
+    return unless @option_parser.nil?
+
+    raise("No variable '@option_parser' has been created in the option_parser setup of command #{self.class.name}.")
   end
 
   @description = ''
   @subcommands = {}
+
+  # This method must be overridden by subclasses to create a new option parser in a '@option_parser' variable.
+  # Do not call 'super' in the new implementation.
+  def setup_option_parser
+    raise("Error: command #{self.class.name} do not have a defined option parser.")
+  end
 
   def full_description
     description + if subcommands.empty?
