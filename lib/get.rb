@@ -48,18 +48,6 @@ class Get < Command
         tree: Tree.instance,
       }
     end
-    @option_parser = Optimist::Parser.new(
-      @usage,
-      full_description,
-      GET_VERSION,
-      stop_condition
-    ) do |usage_header, description, version, stop_condition|
-      usage usage_header
-      synopsis description
-      version "Get version: #{version}"
-      educate_on_error
-      stop_on stop_condition
-    end
   end
 
   def main
@@ -78,6 +66,23 @@ class Get < Command
   def self.error(message)
     Common.error message do
       @option_parser.educate
+    end
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      GET_VERSION,
+      stop_condition
+    ) do |usage_header, description, version, stop_condition|
+      usage usage_header
+      synopsis description
+      version "Get version: #{version}"
+      educate_on_error
+      stop_on stop_condition
     end
   end
 end
