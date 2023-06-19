@@ -26,13 +26,6 @@ require 'get/subcommand/command'
 # rubocop:disable Metrics/ClassLength
 # Subcommand, generates a changelog.
 class Changelog < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
-
   private
 
   UNDEFINED_SCOPE = 'other'
@@ -44,50 +37,15 @@ class Changelog < Command
     item: '- %s'
   }.freeze
 
-  @@command = nil
-
-  @@usage = 'changelog -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Generate a changelog. Format options require a "%s" where the content must be.'
-  @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
-    opt :latest,
-        'Generate the changelog from the latest version rather than the latest release'
-    opt :title_format,
-        'Set the symbol for the title.',
-        { type: :string, short: 'T', default: '# %s' }
-    opt :type_format,
-        'Set the symbol for the commit types.',
-        { type: :string, short: 't', default: '= %s' }
-    opt :scope_format,
-        'Set the symbol for the commit scopes.',
-        { type: :string, short: 's', default: '- %s' }
-    opt :list_format,
-        'Set the symbol for lists.',
-        { type: :string, short: 'l', default: '%s' }
-    opt :item_format,
-        'Set the symbol for list items.',
-        { type: :string, short: 'i', default: '* %s' }
-    opt :markdown,
-        'Shortcut for `-T "# %s" -t "## %s" -s "### %s" -l "%s" -i "- %s"`. ' \
-        'Can be overwritten by the single options.'
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+    super() do
+      @usage = 'changelog -h|(<subcommand> [<subcommand-options])'
+      @description = 'Generate a changelog. Format options require a "%s" where the content must be.'
+      @subcommands = {}
+    end
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
       Common.error 'changelog need to be run inside a git repository' unless Git.in_repo?
       @format = {}
@@ -160,6 +118,41 @@ class Changelog < Command
       #{@format[:scope].sub('%s', scope.to_s)}
       #{@format[:list].sub('%s', formatted_commits.join("\n"))}
     SCOPE
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :latest,
+          'Generate the changelog from the latest version rather than the latest release'
+      opt :title_format,
+          'Set the symbol for the title.',
+          { type: :string, short: 'T', default: '# %s' }
+      opt :type_format,
+          'Set the symbol for the commit types.',
+          { type: :string, short: 't', default: '= %s' }
+      opt :scope_format,
+          'Set the symbol for the commit scopes.',
+          { type: :string, short: 's', default: '- %s' }
+      opt :list_format,
+          'Set the symbol for lists.',
+          { type: :string, short: 'l', default: '%s' }
+      opt :item_format,
+          'Set the symbol for list items.',
+          { type: :string, short: 'i', default: '* %s' }
+      opt :markdown,
+          'Shortcut for `-T "# %s" -t "## %s" -s "### %s" -l "%s" -i "- %s"`. ' \
+          'Can be overwritten by the single options.'
+      educate_on_error
+      stop_on stop_condition
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
