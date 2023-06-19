@@ -27,6 +27,13 @@ Metrics/MethodLength:
   CountAsOne: [
     'heredoc',
   ]
+  IgnoredMethods:
+    - setup_option_parser
+
+Metrics/BlockLength:
+  AllowedMethods:
+    - refine
+    - Optimist::Parser.new
 
 # This is a redundant metric for software size. Software size is already evaluated by Method Length and Class Length.
 Metrics/AbcSize:
