@@ -27,58 +27,19 @@ require 'get/subcommand/commit/prompt'
 # rubocop:disable Metrics/ClassLength
 # Subcommand, it manages the description of the current git repository using semantic version.
 class Commit < Command
-  def self.command
-    @@command ||= new
-    @@command
-  end
-
-  private_class_method :new
-
   private
 
   include PromptHandler
 
-  @@command = nil
-
-  @@usage = 'commit -h|(<subcommand> [<subcommand-options])'
-  @@description = 'Create a new semantic commit.'
-  @@subcommands = {}
-  # This block is Optimist configuration. It is as long as the number of options of the command.
-  # rubocop:disable Metrics/BlockLength
-  @@option_parser = Optimist::Parser.new do
-    subcommand_max_length = @@subcommands.keys.map { |k| k.to_s.length }.max
-    subcommand_section = <<~SUBCOMMANDS unless @@subcommands.empty?
-      Subcommands:
-      #{@@subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{@@subcommands[k].description}" }.join("\n")}
-    SUBCOMMANDS
-    usage @@usage
-    synopsis @@description + (subcommand_section.nil? ? '' : "\n") + subcommand_section.to_s
-    opt :type,
-        'Define the type of the commit. Enabling this option skips the type selection.',
-        { type: :string }
-    opt :scope,
-        'Define the scope of the commit. Enabling this option skips the scope selection.',
-        { type: :string, short: 'S' }
-    opt :summary,
-        'Define the summary message of the commit. Enabling this option skips the summary message prompt.',
-        { type: :string, short: 's' }
-    opt :message,
-        'Define the message body of the commit. Enabling this option skips the message body prompt.',
-        { type: :string }
-    opt :breaking,
-        'Set the commit to have a breaking change. ' \
-        'Can be negated with "--no-breaking". ' \
-        'Enabling this option skips the breaking change prompt.',
-        { type: :flag, short: :none }
-    educate_on_error
-    stop_on @@subcommands.keys.map(&:to_s)
-  end
-  # rubocop:enable Metrics/BlockLength
-
   def initialize
-    super(@@usage, @@description) do
-      @options = Common.with_subcommand_exception_handling @@option_parser do
-        @@option_parser.parse
+    super() do
+      @usage = 'commit -h|(<subcommand> [<subcommand-options])'
+      @description = 'Create a new semantic commit.'
+      @subcommands = {}
+    end
+    @action = lambda do
+      @options = Common.with_subcommand_exception_handling @option_parser do
+        @option_parser.parse
       end
       Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
 
@@ -142,6 +103,34 @@ class Commit < Command
     else
       ask_for_message
     end.to_s.strip
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(@usage, full_description, stop_condition) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :type,
+          'Define the type of the commit. Enabling this option skips the type selection.',
+          { type: :string }
+      opt :scope,
+          'Define the scope of the commit. Enabling this option skips the scope selection.',
+          { type: :string, short: 'S' }
+      opt :summary,
+          'Define the summary message of the commit. Enabling this option skips the summary message prompt.',
+          { type: :string, short: 's' }
+      opt :message,
+          'Define the message body of the commit. Enabling this option skips the message body prompt.',
+          { type: :string }
+      opt :breaking,
+          'Set the commit to have a breaking change. ' \
+          'Can be negated with "--no-breaking". ' \
+          'Enabling this option skips the breaking change prompt.',
+          { type: :flag, short: :none }
+      educate_on_error
+      stop_on stop_condition
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
