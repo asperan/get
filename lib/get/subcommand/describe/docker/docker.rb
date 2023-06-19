@@ -35,28 +35,6 @@ class DescribeDocker < Command
       @description = 'Describe the current git repository with a list of version for docker'
       @subcommands = {}
     end
-    # This block is Optimist configuration. It is as long as the number of options of the command.
-    # rubocop:disable Metrics/BlockLength
-    @option_parser = Optimist::Parser.new(
-      @usage,
-      full_description,
-      stop_condition
-    ) do |usage_header, description, stop_condition|
-      usage usage_header
-      synopsis description
-      opt :separator,
-          'Use the given value as separator for versions',
-          { type: :string, default: '\n' }
-      opt :not_latest,
-          'Do not include "latest" in the version list.',
-          short: :none
-      opt :substitute_plus,
-          'Set which character will be used in place of "+".',
-          { type: :string, short: :none }
-      educate_on_error
-      stop_on stop_condition
-    end
-    # rubocop:enable Metrics/BlockLength
     @action = lambda do |version|
       Common.error 'describe need to be run inside a git repository' unless Git.in_repo?
       @options = Common.with_subcommand_exception_handling @option_parser do
@@ -104,6 +82,30 @@ class DescribeDocker < Command
       []
     else
       ['latest']
+    end
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :separator,
+          'Use the given value as separator for versions',
+          { type: :string, default: '\n' }
+      opt :not_latest,
+          'Do not include "latest" in the version list.',
+          short: :none
+      opt :substitute_plus,
+          'Set which character will be used in place of "+".',
+          { type: :string, short: :none }
+      educate_on_error
+      stop_on stop_condition
     end
   end
 end
