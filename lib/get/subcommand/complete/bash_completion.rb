@@ -22,7 +22,7 @@ module BashCompletion
   def bash_completion(main_module, command_name)
     generate_functions(main_module, command_name, INITIAL_LEVEL)
 
-    "#{HEADER}\n#{@@function_stack.reverse.join("\n")}"
+    "#{HEADER}\n#{MOD_REF.function_stack.reverse.join("\n")}"
   end
 
   private
@@ -37,7 +37,8 @@ module BashCompletion
     #
   HEADER
 
-  @@function_stack = []
+  Common.add_module_self_reference(self)
+  Common.module_instance_value(self, 'function_stack', [])
 
   def full_subcommand_name(base, name)
     "#{base}_#{name}"
@@ -74,18 +75,18 @@ module BashCompletion
     short_options = []
     subcommands = []
 
-    command_class.class_variable_get(:@@option_parser).specs.each_value do |option|
+    command_class.instance.option_parser.specs.each_value do |option|
       long_options.push("--#{option.long}")
       short_options.push("-#{option.short.nil? ? option.long[0] : option.short}") if option.short != :none
     end
 
-    command_class.class_variable_get(:@@subcommands).each_key do |subcommand|
+    command_class.instance.subcommands.each_key do |subcommand|
       subcommands.push(subcommand.to_s)
     end
 
-    @@function_stack.push(completion_function_definition(name, level, long_options, short_options, subcommands))
+    MOD_REF.function_stack.push(completion_function_definition(name, level, long_options, short_options, subcommands))
 
-    command_class.class_variable_get(:@@subcommands).each do |element|
+    command_class.instance.subcommands.each do |element|
       generate_functions(element[1].class, full_subcommand_name(name, element[0].to_s), level + 1)
     end
   end
