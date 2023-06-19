@@ -34,21 +34,6 @@ class Init < Command
       @description = 'Initialize a new git repository with an initial empty commit.'
       @subcommands = {}
     end
-    # This block is Optimist configuration. It is as long as the number of options of the command.
-    # rubocop:disable Metrics/BlockLength
-    @option_parser = Optimist::Parser.new(
-      @usage,
-      full_description,
-      stop_condition
-    ) do |usage_header, description, stop_condition|
-      usage usage_header
-      synopsis description
-      opt :empty,
-          'Do not create the first, empty commit.'
-      educate_on_error
-      stop_on stop_condition
-    end
-    # rubocop:enable Metrics/BlockLength
     @action = lambda do
       @options = Common.with_subcommand_exception_handling @option_parser do
         @option_parser.parse
@@ -71,6 +56,26 @@ class Init < Command
   def create_first_commit
     `git commit --allow-empty -m "chore: initialize repository"`
     Common.error 'Failed to create first commit' if $CHILD_STATUS.exitstatus.positive?
+  end
+
+  protected
+
+  def setup_option_parser
+    # This block is Optimist configuration. It is as long as the number of options of the command.
+    # rubocop:disable Metrics/BlockLength
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :empty,
+          'Do not create the first, empty commit.'
+      educate_on_error
+      stop_on stop_condition
+    end
+    # rubocop:enable Metrics/BlockLength
   end
 end
 # rubocop:enable Metrics/ClassLength
