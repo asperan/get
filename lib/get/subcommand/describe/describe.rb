@@ -53,58 +53,6 @@ class Describe < Command
         docker: DescribeDocker.instance,
       }
     end
-    # This block is Optimist configuration. It is as long as the number of options of the command.
-    # rubocop:disable Metrics/BlockLength
-    @option_parser = Optimist::Parser.new(
-      @usage,
-      full_description,
-      stop_condition,
-    ) do |usage_header, description, stop_condition|
-      usage usage_header
-      synopsis description
-      opt :prerelease,
-          'Describe a prerelease rather than a release',
-          short: :none
-      opt :exclude_metadata,
-          'Do not include metadata in version.'
-      opt :metadata,
-          'Set which metadata to include in the string. ' \
-          'Multiple value can be specified by separating the with a comma \',\'.',
-          { type: :string, default: 'sha' }
-      opt :major_trigger,
-          'Set the trigger for a major release. ' \
-          'This must be a valid Ruby expression. ' \
-          'In this expression the string values "type" and "scope" ' \
-          'and the boolean value "is_breaking" can be used.',
-          { short: :none, type: :string, default: 'is_breaking' }
-      opt :minor_trigger,
-          'Set the trigger for a minor release. ' \
-          'This must be a valid Ruby expression. ' \
-          'In this expression the string values "type" and "scope" can be used.',
-          { short: :none, type: :string, default: "type == 'feat'" }
-      opt :patch_trigger,
-          'Set the trigger for a patch release. ' \
-          'This must be a valid Ruby expression. ' \
-          'In this expression the string values "type" and "scope" can be used.',
-          { short: :none, type: :string, default: "type == 'fix'" }
-      opt :prerelease_pattern,
-          'Set the pattern of the prerelease. This must contain the placeholder "(p)".',
-          { short: :none, type: :string, default: 'dev(p)' }
-      opt :old_prerelease_pattern,
-          'Set the pattern of the old prerelease. It is useful for changing prerelease pattern.',
-          { short: :none, type: :string, default: 'prerelease-pattern value' }
-      opt :diff,
-          'Print also the last version.'
-      opt :create_tag,
-          'Create a signed tag with the computed version.',
-          { short: :none }
-      opt :tag_message,
-          'Add the given message to the tag. Requires "--create-tag".',
-          { short: :none, type: :string }
-      educate_on_error
-      stop_on stop_condition
-    end
-    # rubocop:enable Metrics/BlockLength
     @action = lambda do
       @options = Common.with_subcommand_exception_handling @option_parser do
         @option_parser.parse
@@ -218,6 +166,60 @@ class Describe < Command
       } " \
       "'#{computed_version}'"
     )
+  end
+
+  protected
+
+  def setup_option_parser
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition,
+      ) do |usage_header, description, stop_condition|
+      usage usage_header
+      synopsis description
+      opt :prerelease,
+          'Describe a prerelease rather than a release',
+          short: :none
+      opt :exclude_metadata,
+          'Do not include metadata in version.'
+      opt :metadata,
+          'Set which metadata to include in the string. ' \
+          'Multiple value can be specified by separating the with a comma \',\'.',
+          { type: :string, default: 'sha' }
+      opt :major_trigger,
+          'Set the trigger for a major release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" ' \
+          'and the boolean value "is_breaking" can be used.',
+          { short: :none, type: :string, default: 'is_breaking' }
+      opt :minor_trigger,
+          'Set the trigger for a minor release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" can be used.',
+          { short: :none, type: :string, default: "type == 'feat'" }
+      opt :patch_trigger,
+          'Set the trigger for a patch release. ' \
+          'This must be a valid Ruby expression. ' \
+          'In this expression the string values "type" and "scope" can be used.',
+          { short: :none, type: :string, default: "type == 'fix'" }
+      opt :prerelease_pattern,
+          'Set the pattern of the prerelease. This must contain the placeholder "(p)".',
+          { short: :none, type: :string, default: 'dev(p)' }
+      opt :old_prerelease_pattern,
+          'Set the pattern of the old prerelease. It is useful for changing prerelease pattern.',
+          { short: :none, type: :string, default: 'prerelease-pattern value' }
+      opt :diff,
+          'Print also the last version.'
+      opt :create_tag,
+          'Create a signed tag with the computed version.',
+          { short: :none }
+      opt :tag_message,
+          'Add the given message to the tag. Requires "--create-tag".',
+          { short: :none, type: :string }
+      educate_on_error
+      stop_on stop_condition
+    end
   end
 end
 # rubocop:enable Metrics/ClassLength
