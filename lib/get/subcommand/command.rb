@@ -74,4 +74,10 @@ class Command
   def stop_condition
     subcommands.keys.map(&:to_s)
   end
+
+  def educated_error(message)
+    Common.error message do
+      @option_parser.educate
+    end
+  end
 end

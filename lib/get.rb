@@ -54,12 +54,6 @@ class Get < Command
     @action.call
   end
 
-  def self.error(message)
-    Common.error message do
-      @option_parser.educate
-    end
-  end
-
   protected
 
   def setup_option_parser
@@ -82,12 +76,12 @@ class Get < Command
       @options = Optimist.with_standard_exception_handling(@option_parser) do
         @option_parser.parse
       end
-      error 'No command or option specified' if ARGV.empty?
+      educated_error 'No command or option specified' if ARGV.empty?
       command = ARGV.shift.to_sym
       if @subcommands.include?(command)
         @subcommands[command].action.call
       else
-        error "Unknown subcommand '#{command}'"
+        educated_error "Unknown subcommand '#{command}'"
       end
     end
   end
