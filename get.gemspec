@@ -7,7 +7,7 @@ class Gem::Specification
     excluded_files = []
 
     (Dir['lib/**/*'] + Dir['bin/*'])
-       .filter { |element| !excluded_files.include?(element) }
+      .filter { |element| !excluded_files.include?(element) }
   end
 
   def retrieve_authors
