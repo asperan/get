@@ -105,6 +105,8 @@ class License < Command
 
         create_license_commit
       end
+    rescue Interrupt
+      Common.print_then_do_and_exit "\nLicense creation cancelled"
     end
   end
 
