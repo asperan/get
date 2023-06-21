@@ -112,7 +112,7 @@ module PromptHandler
     return if MOD_REF.custom_values_initialized
 
     Git.with_commit_list_from(FIRST_COMMIT) do |commit_list|
-      commit_list.map do |element|
+      commit_list.reverse.map do |element|
         match = Git::CONVENTIONAL_COMMIT_REGEX.match(element)
         next if match.nil?
 
