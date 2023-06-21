@@ -17,7 +17,6 @@
 
 # frozen_string_literal: true
 
-require 'English'
 require 'get/commons/common'
 require 'get/commons/git'
 require 'get/subcommand/command'
@@ -129,8 +128,8 @@ class Commit < Command
 
       message = full_commit_message
       puts message
-      output = `git commit --no-status -m "#{message.gsub('"', '\"')}"`
-      Common.error "git commit failed: #{output}" if $CHILD_STATUS.exitstatus.positive?
+      command_result = CommandIssuer.run('git', 'commit', '--no-status', '-m', "\"#{message.gsub('"', '\"')}\"")
+      Common.error "git commit failed: #{command_result.output}" if command_result.exit_status.positive?
     rescue Interrupt
       Common.print_then_do_and_exit "\nCommit cancelled"
     end
