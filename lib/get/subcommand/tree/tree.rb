@@ -30,7 +30,9 @@ class Tree < Command
   def initialize
     super() do
       @usage = 'tree -h|(<subcommand> [<subcommand-options])'
-      @description = 'Print the tree of commits. If the output is redirected to a pager (i.e. \'less\'), you may need to enable the parsing of escape sequences.'
+      @description = 'Print the tree of commits. ' \
+                     'If the output is redirected to a pager (i.e. \'less\'), ' \
+                     'you may need to enable the parsing of escape sequences.'
       @subcommands = {}
     end
   end

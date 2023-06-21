@@ -94,7 +94,11 @@ class Commit < Command
   protected
 
   def setup_option_parser
-    @option_parser = Optimist::Parser.new(@usage, full_description, stop_condition) do |usage_header, description, stop_condition|
+    @option_parser = Optimist::Parser.new(
+      @usage,
+      full_description,
+      stop_condition
+    ) do |usage_header, description, stop_condition|
       usage usage_header
       synopsis description
       opt :type,

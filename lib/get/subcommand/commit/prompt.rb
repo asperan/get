@@ -22,7 +22,6 @@ require_relative '../../commons/git'
 
 # Module for asking to the user information about a commit message.
 module PromptHandler
-
   Common.module_instance_value(self, 'cli', 'HighLine.new')
   Common.module_instance_attr(self, 'custom_values_initialized', false)
   Common.module_instance_value(self, 'custom_types', [])

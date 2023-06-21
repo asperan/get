@@ -71,7 +71,10 @@ module Retriever
       end
       @online_licenses.keys
     else
-      puts "WARNING: Unable to retrieve list of online licenses (cause: #{HTTPClient.instance.response_error_message(response)}), falling back to offline ones."
+      warning_message = 'WARNING: Unable to retrieve list of online licenses ' \
+                        "(cause: #{HTTPClient.instance.response_error_message(response)}), " \
+                        'falling back to offline ones.'
+      puts warning_message
       @offline = true
       offline_license_list
     end
@@ -91,7 +94,9 @@ module Retriever
         match_result[1]
       end
     else
-      Common.error "Failed to retrieve the license text (cause: #{HTTPClient.instance.response_error_message(response)})."
+      error_message = 'Failed to retrieve the license text ' \
+                      "(cause: #{HTTPClient.instance.response_error_message(response)})."
+      Common.error error_message
     end
   end
 end

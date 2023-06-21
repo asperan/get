@@ -59,7 +59,9 @@ class Describe < Command
     ChangeHandler.major_trigger = @options[:major_trigger] if @options[:major_trigger_given]
     ChangeHandler.minor_trigger = @options[:minor_trigger] if @options[:minor_trigger_given]
     ChangeHandler.patch_trigger = @options[:patch_trigger] if @options[:patch_trigger_given]
-    PrereleaseHandler.old_prerelease_pattern = @options[:old_prerelease_pattern] if @options[:old_prerelease_pattern_given]
+    if @options[:old_prerelease_pattern_given]
+      PrereleaseHandler.old_prerelease_pattern = @options[:old_prerelease_pattern]
+    end
     PrereleaseHandler.prerelease_pattern = @options[:prerelease_pattern] if @options[:prerelease_pattern_given]
   end
 
@@ -147,7 +149,7 @@ class Describe < Command
     @option_parser = Optimist::Parser.new(
       @usage,
       full_description,
-      stop_condition,
+      stop_condition
     ) do |usage_header, description, stop_condition|
       usage usage_header
       synopsis description

@@ -71,6 +71,17 @@ module Common
   #    end
   def self.module_instance_attr(mod, name, default_value = nil)
     mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      # module MyModule
+      #       instance_variable_set(:@my_variable, 1)
+      #       def self.my_variable
+      #         instance_variable_get(:@my_variable)
+      #       end
+      #
+      #       def self.my_variable=(value)
+      #         instance_variable_set(:@my_variable, value)
+      #       end
+      #    end
+
       instance_variable_set(:@#{name}, #{default_value})
 
       def self.#{name}
@@ -85,6 +96,13 @@ module Common
 
   def self.module_instance_value(mod, name, value)
     mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      # module MyModule
+      #   instance_variable_set(:@my_variable, 1)
+      #   def self.my_variable
+      #     instance_variable_get(:@my_variable)
+      #   end
+      # end
+
       instance_variable_set(:@#{name}, #{value})
 
       def self.#{name}
@@ -96,6 +114,10 @@ module Common
   # Add a new 'MOD_REF' constant with the module symbol for a shorter variable name.
   def self.add_module_self_reference(mod)
     mod.module_eval(<<~CODE, __FILE__, __LINE__ + 1)
+      # module MyModule
+      #   MOD_REF = MyModule
+      # end
+
       MOD_REF = #{mod.name}
     CODE
   end

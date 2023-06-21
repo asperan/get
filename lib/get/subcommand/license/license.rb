@@ -52,7 +52,12 @@ class License < Command
     setup_at_exit_hook
     CommandIssuer.run('git', 'add', "'#{@filename}'").then do |add_result|
       if add_result.exit_status.zero?
-        CommandIssuer.run('git', 'commit', '-m', "'#{@options[:commit_type]}: add license file'").then do |commit_result|
+        CommandIssuer.run(
+          'git',
+          'commit',
+          '-m',
+          "'#{@options[:commit_type]}: add license file'"
+        ).then do |commit_result|
           if commit_result.exit_status.positive?
             Common.error 'Failed to create license commit'
           else
