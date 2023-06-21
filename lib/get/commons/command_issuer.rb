@@ -35,8 +35,8 @@ module CommandIssuer
 
   def self.run(executable, *args)
     full_path_executable = CommandIssuer.send(:find, executable)
-    command = [full_path_executable, *args].join(' ')
-    output, error, status = Open3.capture3(full_path_executable, *args)
+    command = [full_path_executable, *args].join(' ').strip
+    output, error, status = Open3.capture3(command)
     CommandResult.new(command, status.exitstatus, output, error)
   end
 
