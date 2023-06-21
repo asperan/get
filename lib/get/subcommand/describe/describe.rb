@@ -17,13 +17,13 @@
 
 # frozen_string_literal: true
 
-require 'get/commons/common'
-require 'get/commons/git'
-require 'get/subcommand/command'
-require 'get/subcommand/describe/change'
-require 'get/subcommand/describe/prerelease'
-require 'get/subcommand/describe/metadata'
-require 'get/subcommand/describe/docker/docker'
+require_relative '../../commons/common'
+require_relative '../../commons/git'
+require_relative '../command'
+require_relative './change'
+require_relative './prerelease'
+require_relative './metadata'
+require_relative './docker/docker'
 
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
@@ -153,7 +153,7 @@ class Describe < Command
       @usage,
       full_description,
       stop_condition,
-      ) do |usage_header, description, stop_condition|
+    ) do |usage_header, description, stop_condition|
       usage usage_header
       synopsis description
       opt :prerelease,
