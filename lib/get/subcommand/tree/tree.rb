@@ -37,7 +37,7 @@ class Tree < Command
   end
 
   def view_tree
-    page_log(transform_log(log))
+    puts transform_log(log)
   end
 
   TREE_FORMAT = '%C(bold blue)%h%C(reset)§%C(dim normal)(%cr)%C(reset)§%C(auto)%d%C(reset)§§%n' \
@@ -84,10 +84,6 @@ class Tree < Command
       .join("\n")
   end
   # rubocop:enable Metrics/MethodLength
-
-  def page_log(text)
-    system("less -RfS <(echo -e '#{text}')")
-  end
 
   protected
 
