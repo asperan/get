@@ -17,11 +17,10 @@
 
 # frozen_string_literal: true
 
-require 'English'
-require 'get/commons/common'
-require 'get/subcommand/command'
-require 'get/subcommand/complete/bash_completion'
-require 'get'
+require_relative '../../commons/common'
+require_relative '../command'
+require_relative './bash_completion'
+require_relative '../../../get'
 
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
