@@ -17,8 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'English'
-require 'get/commons/common'
+require_relative './command_issuer'
 
 # Utility module
 module Git
@@ -28,12 +27,7 @@ module Git
   # Check if the command is called while in a git repository.
   # If the command fails, it is assumed to not be in a git repository.
   def self.in_repo?
-    system('git rev-parse --is-inside-work-tree &>/dev/null')
-    case $CHILD_STATUS.exitstatus
-    when 0 then true
-    when 127 then Common.error '"git" is not installed.'
-    else false
-    end
+    CommandIssuer.run('git', 'rev-parse', '--is-inside-work-tree').exit_status.zero?
   end
 
   # Run a block of code with the list of commits from the given version as an argument.
@@ -41,26 +35,42 @@ module Git
   def self.with_commit_list_from(version = nil, &block)
     return unless block_given?
 
-    commits_from_version =
-      `git --no-pager log --oneline --pretty=format:%s #{version.nil? ? '' : "^#{version} HEAD"} 2>/dev/null`
-      .split("\n")
-      .then { |value| $CHILD_STATUS.exitstatus.zero? ? value : [] }
+    command_result = CommandIssuer.run(
+      'git',
+      '--no-pager',
+      'log',
+      '--oneline',
+      '--pretty=format:%s',
+      version.nil? ? '' : "^#{version} HEAD"
+    )
+    commits_from_version = if command_result.exit_status.zero?
+                             command_result.output.split("\n")
+                           else
+                             []
+                           end
     block.call(commits_from_version)
   end
 
   # Returns the last version and caches it for the next calls.
   def self.last_version
     @last_version ||=
-      `git describe --tags --abbrev=0 2>/dev/null`
-      .strip
-      .then { |value| value if $CHILD_STATUS.exitstatus.zero? }
+      CommandIssuer.run('git', 'describe', '--tags', '--abbrev=0')
+                   .then { |result| result.output.strip if result.exit_status.zero? }
   end
 
   # Returns the last release and caches it for the next calls.
   def self.last_release
     @last_release ||=
-      `git --no-pager tag --list | sed 's/+/_/' | sort -V | sed 's/_/+/' | tail -n 1`
-      .strip
-      .then { |value| value unless value.empty? }
+      CommandIssuer.run('git', '--no-pager', 'tag', '--list')
+                   .then do |value|
+        unless value.output.empty?
+          value.output
+               .split("\n")
+               .map { |str| str.sub('+', '_') }
+               .sort
+               .map { |str| str.sub('_', '+') }
+               .last
+        end
+      end
   end
 end
