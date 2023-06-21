@@ -213,11 +213,7 @@ class Describe < Command
         if @subcommands.include?(subcommand)
           @subcommands[subcommand].action.call(describe_current_commit)
         else
-          # This error should not be disabled by -W0
-          # rubocop:disable Style/StderrPuts
-          $stderr.puts "Error: subcommand '#{subcommand}' unknown."
-          # rubocop:enable Style/StderrPuts
-          exit 1
+          Common.error "subcommand '#{subcommand}' unknown."
         end
       else
         puts describe_current_commit
