@@ -17,10 +17,9 @@
 
 # frozen_string_literal: true
 
-require 'English'
-require 'get/commons/common'
-require 'get/commons/git'
-require 'get/subcommand/command'
+require_relative '../../commons/common'
+require_relative '../../commons/git'
+require_relative '../command'
 
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
