@@ -18,7 +18,7 @@
 # frozen_string_literal: true
 
 require 'highline'
-require 'get/commons/git'
+require_relative '../../commons/git'
 
 # Module for asking to the user information about a commit message.
 module PromptHandler
