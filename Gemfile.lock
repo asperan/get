@@ -4,7 +4,6 @@ PATH
     git_toolbox (0.7.2)
       highline (~> 2.0.3)
       optimist (~> 3.0, >= 3.0.1)
-      singleton (~> 0.1.1)
 
 GEM
   remote: https://rubygems.org/
@@ -34,7 +33,6 @@ GEM
     rubocop-ast (1.24.0)
       parser (>= 3.1.1.0)
     ruby-progressbar (1.11.0)
-    singleton (0.1.1)
     unicode-display_width (2.3.0)
 
 PLATFORMS

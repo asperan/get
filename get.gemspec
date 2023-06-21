@@ -46,5 +46,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'highline', '~> 2.0.3'
   spec.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
-  spec.add_dependency 'singleton', '~> 0.1.1'
 end
