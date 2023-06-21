@@ -114,6 +114,8 @@ class Commit < Command
           'Can be negated with "--no-breaking". ' \
           'Enabling this option skips the breaking change prompt.',
           { type: :flag, short: :none }
+      opt :quiet,
+          'Disable the print of the complete message.'
       educate_on_error
       stop_on stop_condition
     end
@@ -127,7 +129,7 @@ class Commit < Command
       Common.error 'commit need to be run inside a git repository' unless Git.in_repo?
 
       message = full_commit_message
-      puts message
+      puts message unless @options[:quiet]
       command_result = CommandIssuer.run('git', 'commit', '--no-status', '-m', "\"#{message.gsub('"', '\"')}\"")
       Common.error "git commit failed: #{command_result.output}" if command_result.exit_status.positive?
     rescue Interrupt
