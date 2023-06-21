@@ -43,7 +43,16 @@ class Tree < Command
                 '§§§       %C(normal)%an%C(reset)%C(dim normal): %s%C(reset)'
 
   def log
-    `git log --all --graph --decorate=short --date-order --color --pretty=format:"#{TREE_FORMAT}"`
+    CommandIssuer.run(
+      'git',
+      'log',
+      '--all',
+      '--graph',
+      '--decorate=short',
+      '--date-order',
+      '--color',
+      "--pretty=format:\"#{TREE_FORMAT}\""
+    ).output
   end
 
   TIME_REGEX = /(\([a-z0-9 ,]+\))/
