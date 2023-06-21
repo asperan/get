@@ -47,14 +47,22 @@ class License < Command
   end
 
   def create_license_commit
-    `git stash push --staged`
+    CommandIssuer.run('git', 'stash', 'push', '--staged')
 
-    # This block is given to at_exit to execute it in any case.
-    at_exit { `[ "$(git stash list | wc -l)" -gt "0" ] && git stash pop > /dev/null` }
-    `git add "#{@filename}" && git commit -m "chore: add license file"`
-    Common.error 'Failed to create license commit' if $CHILD_STATUS.exitstatus.positive?
-
-    puts 'License file committed.'
+    setup_at_exit_hook
+    CommandIssuer.run('git', 'add', "'#{@filename}'").then do |add_result|
+      if add_result.exit_status.zero?
+        CommandIssuer.run('git', 'commit', '-m', "'#{@options[:commit_type]}: add license file'").then do |commit_result|
+          if commit_result.exit_status.positive?
+            Common.error 'Failed to create license commit'
+          else
+            puts 'License file committed.'
+          end
+        end
+      else
+        Common.error "Failed to add license file '#{@filename}' to stage."
+      end
+    end
   end
 
   protected
@@ -96,6 +104,17 @@ class License < Command
         Common.error 'Not in a git repository: a commit cannot be created.' unless Git.in_repo?
 
         create_license_commit
+      end
+    end
+  end
+
+  private
+
+  def setup_at_exit_hook
+    # This block is given to at_exit to execute it in any case.
+    at_exit do
+      if CommandIssuer.run('git', 'stash', 'list').output.lines.length.positive?
+        CommandIssuer.run('git', 'stash', 'pop')
       end
     end
   end
