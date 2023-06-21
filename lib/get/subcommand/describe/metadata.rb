@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require_relative '../../commons/command_issuer'
+
 # Module with methods to handle tag metadata.
 #
 # To add a new metadata type, create a new method and link it to a symbol.
@@ -32,7 +34,7 @@ module MetadataHandler
   private
 
   def last_commit_sha
-    `git --no-pager log -n 1 --pretty=%h`.strip
+    CommandIssuer.run('git', '--no-pager', 'log', '-n', '1', '--pretty=%h').output.strip
   end
 
   def current_date
