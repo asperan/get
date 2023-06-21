@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 require 'highline'
+require_relative '../../commons/http_client'
 
 # The retrieving module for licenses. It can gather licenses online (from https://choosealicense.com/appendix/)
 # or offline (from a predefined subset of licenses).
@@ -58,17 +59,21 @@ module Retriever
 
   def online_license_list
     @online_licenses = {}
-    text = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}/appendix/" | grep '<th scope="row">'`.strip
-    if $CHILD_STATUS.exitstatus.positive?
-      puts 'WARNING: Unable to retrieve list of online licenses, falling back to offline ones.'
-      @offline = true
-      offline_license_list
-    else
-      text.split("\n").each do |element|
+    response = HTTPClient.instance.http_get_request("#{BASE_ONLINE_LICENSE_URI}/appendix/")
+    if response.is_a?(Net::HTTPSuccess)
+      response.body
+              .strip
+              .lines
+              .select { |line| line.include?('<th scope="row">') }
+              .each do |element|
         match_result = element.match(%r{<a href="(.*)">(.*)</a>})
         @online_licenses[match_result[2]] = match_result[1]
       end
       @online_licenses.keys
+    else
+      puts "WARNING: Unable to retrieve list of online licenses (cause: #{HTTPClient.instance.response_error_message(response)}), falling back to offline ones."
+      @offline = true
+      offline_license_list
     end
   end
 
@@ -77,12 +82,16 @@ module Retriever
   end
 
   def online_license_text(license)
-    page = `curl -fsL "#{BASE_ONLINE_LICENSE_URI}#{@online_licenses[license]}"`
-    Common.error 'Failed to retrieve the license text.' if $CHILD_STATUS.exitstatus.positive?
-
-    match_result = page.match(%r{<pre id="license-text">(.*)</pre>}m)
-    Common.error 'Invalid license text' if match_result[1].nil?
-
-    match_result[1]
+    response = HTTPClient.instance.http_get_request("#{BASE_ONLINE_LICENSE_URI}#{@online_licenses[license]}")
+    if response.is_a?(Net::HTTPSuccess)
+      match_result = response.body.match(%r{<pre id="license-text">(.*)</pre>}m)
+      if match_result[1].nil?
+        Common.error 'Invalid license text'
+      else
+        match_result[1]
+      end
+    else
+      Common.error "Failed to retrieve the license text (cause: #{HTTPClient.instance.response_error_message(response)})."
+    end
   end
 end
