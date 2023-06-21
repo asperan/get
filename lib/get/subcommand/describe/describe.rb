@@ -133,17 +133,12 @@ class Describe < Command
   end
 
   def create_signed_tag(computed_version)
-    system(
-      'git tag -s ' \
-      "#{
-        if @options[:tag_message_given]
-          "-m #{@options[:tag_message]}"
-        else
-          ''
-        end
-      } " \
-      "'#{computed_version}'"
-    )
+    tag_message_cli = if @options[:tag_message_given]
+                        "-m \"#{@options[:tag_message].gsub('"', '\"')}\""
+                      else
+                        ''
+                      end
+    CommandIssuer.run('git', 'tag', '-s', tag_message_cli, "'#{computed_version}'")
   end
 
   protected
