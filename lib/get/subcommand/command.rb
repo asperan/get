@@ -38,9 +38,9 @@ class Command
     end
 
     setup_action
-    if @action.nil?
-      raise("No variable '@action' has been created in the action setup of the command #{self.class.name}")
-    end
+    return unless @action.nil?
+
+    raise("No variable '@action' has been created in the action setup of the command #{self.class.name}")
   end
 
   @description = ''
@@ -63,8 +63,8 @@ class Command
                     ''
                   else
                     subcommand_max_length = subcommands.keys.map { |k| k.to_s.length }.max || 0
-                    <<~SUBCOMMANDS
-                      
+                    <<~SUBCOMMANDS.chomp
+                      \n
                       Subcommands:
                       #{subcommands.keys.map { |k| "  #{k.to_s.ljust(subcommand_max_length)} => #{subcommands[k].description}" }.join("\n")}
                     SUBCOMMANDS
