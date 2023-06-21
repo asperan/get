@@ -17,10 +17,9 @@
 
 # frozen_string_literal: true
 
-require 'English'
-require 'get/commons/common'
-require 'get/commons/git'
-require 'get/subcommand/command'
+require_relative '../../commons/common'
+require_relative '../../commons/git'
+require_relative '../command'
 
 # Class length is disabled as most of its length is given by formatting.
 # rubocop:disable Metrics/ClassLength
@@ -37,8 +36,9 @@ class Init < Command
   end
 
   def init_repository
-    `git init`
-    Common.error 'Failed to init the repository' if $CHILD_STATUS.exitstatus.positive?
+    command_result = CommandIssuer.run('git', 'init')
+
+    Common.error 'Failed to init the repository' if command_result.exit_status.positive?
 
     create_first_commit unless @options[:empty]
 
@@ -46,8 +46,8 @@ class Init < Command
   end
 
   def create_first_commit
-    `git commit --allow-empty -m "chore: initialize repository"`
-    Common.error 'Failed to create first commit' if $CHILD_STATUS.exitstatus.positive?
+    command_result = CommandIssuer.run('git', 'commit', '--allow-empty', '-m', '"chore: initialize repository"')
+    Common.error 'Failed to create first commit' if command_result.exit_status.positive?
   end
 
   protected
