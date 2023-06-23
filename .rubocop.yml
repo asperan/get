@@ -46,6 +46,7 @@ Lint/RedundantCopDisableDirective:
 
 AllCops:
   NewCops: enable
+  TargetRubyVersion: 3.0.0
 
 Gemspec/DeprecatedAttributeAssignment: # new in 1.30
   Enabled: true
