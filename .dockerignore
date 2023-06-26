@@ -1,0 +1,38 @@
+# Ignore bundle config folder
+.bundle
+
+# Ignore bundle binstubs
+exe
+
+# Ignore RubyMine configuration
+.idea
+
+# Ignore rbenv version
+.ruby-version
+
+# Ignore Dockerfile
+Dockerfile
+
+# Ignore license files
+LICENSE*
+
+# Ignore self
+.dockerignore
+
+# Ignore gitignore
+.gitignore
+
+# Ignore git folder
+.git
+
+# Ignore rubocop config
+.rubocop.yml
+
+# Ignore rakefile
+Rakefile
+
+# Ignore readme
+README.md
+
+# Ignore local test files
+test
