@@ -1,18 +1,31 @@
 ARG RUBY_VERSION
-FROM docker.io/library/ruby:${RUBY_VERSION}-slim
-
-# WARNING: 'make' and 'gcc' packages are required for version 3.0 and 3.1;
-# remove this line when they are EOL to make the image smaller.
-RUN apt-get update && apt-get install -y make gcc git
+FROM docker.io/library/ruby:${RUBY_VERSION}-slim AS build
 
 COPY ./ /get
 
 WORKDIR /get
 
-RUN ./bin/setup
+RUN gem build -o "git_toolbox.gem"
+
+ARG RUBY_VERSION
+FROM docker.io/library/ruby:${RUBY_VERSION}-slim AS install
+
+WORKDIR /get
+
+COPY --from=build /get/git_toolbox.gem ./
+
+RUN gem install "git_toolbox.gem"
+
+FROM install AS test
+
+RUN apt-get update && apt-get install -y git
 
 RUN git clone https://github.com/asperan/get-tests.git /test-repository
 
 WORKDIR /test-repository
 
 CMD ./start_test.sh
+
+FROM install AS run
+
+ENTRYPOINT [ "get" ]
