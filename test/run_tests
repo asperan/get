@@ -32,7 +32,7 @@ module TestMain
     warn_and_exit 'This script must be run when in the root folder of Get' unless pwd_root_of_project?
 
     built_images(maintained_ruby_versions)
-      .tap { |images| puts "Built images for ruby versions: #{images.join(', ')}" }
+      .tap { |images| puts "Built images for ruby versions: #{images.map { |i| i.delete_prefix(ImageLifecycleHandler::TEST_IMAGE_BASE_NAME)}.join(', ') }" }
       .tap { |images| start_containers_from_images(images, TEST_BRANCHES) }
       .each { |i| remove_image(i) }
   end
