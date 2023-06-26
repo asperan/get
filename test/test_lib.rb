@@ -108,11 +108,28 @@ module TestLibrary
     NamedResult.new(full_container_name(image_name, test_branch), output, error, status.exitstatus)
   end
 
-  def remove_container(image_name, test_branch)
-    Open3.capture3('docker', 'container', 'rm', full_container_name(image_name, test_branch))
+  def remove_container(full_container_name)
+    Open3.capture3('docker', 'container', 'rm', full_container_name)
   end
 
   def remove_image(image_name)
     Open3.capture3('docker', 'image', 'rm', image_name)
+  end
+
+  def start_containers_from_images(images, test_branches)
+    images.map { |i| test_branches.map { |b| start_container(i, b) } }
+          .flatten
+          .select { |c| c.status.positive? }
+          .tap { |failed_containers| puts "Some tests have failed\n" unless failed_containers.empty? } # TODO: refactor/improve
+          .tap { |failed_containers| failed_containers.each { |c| puts failed_container_log(c) } }
+          .each { |c| remove_container(c.name) }
+  end
+
+  def failed_container_log(container_result)
+    <<~LOG
+      =========== CONTAINER '#{container_result.name}' LOG ===========
+      #{container_result.error.strip}
+      =========== END OF LOG ===========\n\n
+    LOG
   end
 end
