@@ -19,8 +19,6 @@
 
 # frozen_string_literal: true
 
-require 'json'
-require 'open3'
 require_relative './test_lib'
 
 module TestMain
