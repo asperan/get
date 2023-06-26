@@ -17,10 +17,14 @@
 
 require 'open3'
 require_relative './test_lib_commons'
+require_relative './test_lib_images'
 
 module ContainerLifecycleHandler
+  IMAGE_BRANCH_SEPARATOR = '_'.freeze
+  BRANCH_SLASH_SUBSTITUTION = '.'.freeze
+
   def full_container_name(image_name, test_branch)
-    "#{image_name}_#{test_branch.gsub('/', '.')}"
+    "#{image_name}#{IMAGE_BRANCH_SEPARATOR}#{test_branch.gsub('/', BRANCH_SLASH_SUBSTITUTION)}"
   end
 
   def start_container(image_name, test_branch)
@@ -38,16 +42,21 @@ module ContainerLifecycleHandler
   def start_containers_from_images(images, test_branches)
     images.map { |i| test_branches.map { |b| start_container(i, b) } }
           .flatten
-          # TODO: improve log of container result
-          .select { |c| c.status.positive? }
-          .tap { |failed_containers| handle_failed_containers(failed_containers) }
+          .tap { |containers| containers.each { |c| print_container_result(c) } }
           .each { |c| remove_container(c.name) }
   end
 
-  def handle_failed_containers(failed_containers)
-    puts "Some tests have failed\n" unless failed_containers.empty?
-    failed_containers.each { |c| puts failed_container_log(c) }
-    puts 'All tests executed successfully' if failed_containers.empty?
+  def print_container_result(container)
+    formatted_name = container.name
+                              .delete_prefix(ImageLifecycleHandler::TEST_IMAGE_BASE_NAME)
+                              .split(IMAGE_BRANCH_SEPARATOR)
+                              .tap { |parts| parts[1].gsub!(BRANCH_SLASH_SUBSTITUTION, '/') }
+                              .then { |parts| "[ruby #{parts[0]}] #{parts[1]}" }
+    if container.status.positive?
+      puts "ERROR: #{formatted_name}\n#{failed_container_log(container)}"
+    else
+      puts "OK: #{formatted_name}"
+    end
   end
 
   def failed_container_log(container_result)
