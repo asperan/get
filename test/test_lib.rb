@@ -33,11 +33,11 @@ module TestLibrary
     end
   end
 
-  class BuildResult
-    attr_reader :image_name, :output, :error, :status
+  class NamedResult
+    attr_reader :name, :output, :error, :status
 
-    def initialize(image_name, output, error, status)
-      @image_name = image_name
+    def initialize(name, output, error, status)
+      @name = name
       @output = output
       @error = error
       @status = status
@@ -69,10 +69,11 @@ module TestLibrary
   def build_image(ruby_version)
     image_name = "#{TEST_IMAGE_BASE_NAME}#{ruby_version.docker_ref}"
     output, error, status = Open3.capture3('docker', 'build',
+                                           '--target', 'test',
                                            '-t', image_name.to_s,
                                            '--build-arg', "RUBY_VERSION=#{ruby_version.docker_ref}",
                                            '.')
-    BuildResult.new(image_name, output, error, status.exitstatus)
+    NamedResult.new(image_name, output, error, status.exitstatus)
   end
 
   def formatted_build_error(image_name, error)
@@ -88,12 +89,11 @@ module TestLibrary
     build_results = versions_to_build.map { |v| build_image(v) }
     failed_builds = build_results.select { |r| r.status.positive? }
     unless failed_builds.empty?
-      failed_builds.each { |f| puts formatted_build_error(f.image_name, f.error) }
+      failed_builds.each { |f| puts formatted_build_error(f.name, f.error) }
       warn_and_exit 'Failed to build some images: see above for error messages'
     end
     puts 'Image builds completed successfully'
-    build_results.each { |b| p b.output }
-    build_results.map(&:image_name)
+    build_results.map(&:name)
   end
 
   def full_container_name(image_name, test_branch)
@@ -105,9 +105,7 @@ module TestLibrary
                                            '--name', full_container_name(image_name, test_branch),
                                            '--env', "TEST_BRANCH=#{test_branch}",
                                            image_name)
-    p status
-    p error
-    p output
+    NamedResult.new(full_container_name(image_name, test_branch), output, error, status)
   end
 
   def remove_container(image_name, test_branch)
