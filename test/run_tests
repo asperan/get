@@ -33,21 +33,10 @@ module TestMain
   def self.main
     warn_and_exit 'This script must be run when in the root folder of Get' unless pwd_root_of_project?
 
-    versions_to_test = maintained_ruby_versions
-    images = built_images(versions_to_test)
-    puts "Built images for ruby versions: #{images.join(', ')}"
-    started_containers = images.map do |i|
-      TEST_BRANCHES.map { |b| start_container(i, b) }
-    end.flatten
-    started_containers.select { |c| c.status.positive? }.each do |c|
-      puts "Log of container #{c.name}:"
-      puts c.error
-      puts "\nEND OF LOG\n\n"
-    end
-    images.each do |i|
-      TEST_BRANCHES.each { |b| remove_container(i, b) }
-      remove_image(i)
-    end
+    built_images(maintained_ruby_versions)
+      .tap { |images| puts "Built images for ruby versions: #{images.join(', ')}" }
+      .tap { |images| start_containers_from_images(images, TEST_BRANCHES) }
+      .each { |i| remove_image(i) }
   end
 end
 
