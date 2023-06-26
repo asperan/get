@@ -105,7 +105,7 @@ module TestLibrary
                                            '--name', full_container_name(image_name, test_branch),
                                            '--env', "TEST_BRANCH=#{test_branch}",
                                            image_name)
-    NamedResult.new(full_container_name(image_name, test_branch), output, error, status)
+    NamedResult.new(full_container_name(image_name, test_branch), output, error, status.exitstatus)
   end
 
   def remove_container(image_name, test_branch)
