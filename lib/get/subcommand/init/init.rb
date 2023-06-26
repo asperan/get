@@ -47,7 +47,7 @@ class Init < Command
 
   def create_first_commit
     command_result = CommandIssuer.run('git', 'commit', '--allow-empty', '-m', '"chore: initialize repository"')
-    Common.error 'Failed to create first commit' if command_result.exit_status.positive?
+    Common.error "Failed to create first commit: #{command_result.error}" if command_result.exit_status.positive?
   end
 
   protected
