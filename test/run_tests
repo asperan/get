@@ -1,0 +1,53 @@
+#! /usr/bin/env ruby
+
+# Get is a toolbox based on git which simplifies the adoption of conventions and some git commands.
+# Copyright (C) 2023  Alex Speranza
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program and the additional permissions granted by
+# the Lesser GPL.  If not, see <https://www.gnu.org/licenses/>.
+
+# frozen_string_literal: true
+
+require 'json'
+require 'open3'
+require_relative './test_lib'
+
+module TestMain
+  extend TestLibrary
+
+  TEST_BRANCHES = [
+    'init/test-simple',
+  ].freeze
+
+  def self.main
+    warn_and_exit 'This script must be run when in the root folder of Get' unless pwd_root_of_project?
+
+    # run 1 container for each image (with checks for tests, if any fails print container log)
+
+    versions_to_test = maintained_ruby_versions
+    images = built_images(versions_to_test)
+    puts "Built images for ruby versions: #{images.join(', ')}"
+    started_containers = images.map do |i|
+      TEST_BRANCHES.map { |b| start_container(i, b) }
+    end.flatten
+    p started_containers
+    # TODO: Check which tests are OK and which are not
+    images.each do |i|
+      TEST_BRANCHES.each { |b| remove_container(i, b) }
+      remove_image(i)
+    end
+  end
+end
+
+TestMain.main
