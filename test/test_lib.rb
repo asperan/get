@@ -97,7 +97,7 @@ module TestLibrary
   end
 
   def full_container_name(image_name, test_branch)
-    "#{image_name}-#{test_branch.gsub('/', '-')}"
+    "#{image_name}_#{test_branch.gsub('/', '.')}"
   end
 
   def start_container(image_name, test_branch)
