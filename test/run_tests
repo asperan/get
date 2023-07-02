@@ -26,6 +26,7 @@ module TestMain
 
   TEST_BRANCHES = [
     'init/test-simple',
+    'describe/repository-without-version',
   ].freeze
 
   def self.main
