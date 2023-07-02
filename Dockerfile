@@ -16,13 +16,14 @@ COPY --from=build /get/git_toolbox.gem ./
 
 RUN gem install "git_toolbox.gem"
 
+ARG TEST_REPO_URL
 FROM install AS test
 
 RUN apt-get update && apt-get install -y git
 
 RUN git config --global user.email "get-automated-test@example.com" && git config --global user.name "Get Automated Test"
 
-RUN git clone https://github.com/asperan/get-tests.git /test-repository
+RUN git clone ${TEST_REPO_URL} /test-repository
 
 WORKDIR /test-repository
 

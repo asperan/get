@@ -21,12 +21,13 @@ require_relative './test_lib_commons'
 module ImageLifecycleHandler
   TEST_IMAGE_BASE_NAME = 'test_get-ruby'.freeze
 
-  def build_image(ruby_version)
+  def build_image(ruby_version, test_repo_url)
     image_name = "#{TEST_IMAGE_BASE_NAME}#{ruby_version.docker_ref}"
     output, error, status = Open3.capture3('docker', 'build',
                                            '--target', 'test',
                                            '-t', image_name.to_s,
                                            '--build-arg', "RUBY_VERSION=#{ruby_version.docker_ref}",
+                                           '--build-arg', "TEST_REPO_URL=#{test_repo_url}",
                                            '.')
     TestCommons::NamedResult.new(image_name, output, error, status.exitstatus)
   end
@@ -40,8 +41,8 @@ module ImageLifecycleHandler
     ERROR
   end
 
-  def built_images(versions_to_build)
-    build_results = versions_to_build.map { |v| build_image(v) }
+  def built_images(versions_to_build, test_repo_url)
+    build_results = versions_to_build.map { |v| build_image(v, test_repo_url) }
     failed_builds = build_results.select { |r| r.status.positive? }
     unless failed_builds.empty?
       failed_builds.each { |f| puts formatted_build_error(f.name, f.error) }

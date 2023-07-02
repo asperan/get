@@ -24,17 +24,14 @@ require_relative './test_lib'
 module TestMain
   extend TestLibrary
 
-  TEST_BRANCHES = [
-    'init/test-simple',
-    'describe/repository-without-version',
-  ].freeze
+  TEST_REPO_URL = "https://github.com/asperan/get-tests.git"
 
   def self.main
     warn_and_exit 'This script must be run when in the root folder of Get' unless pwd_root_of_project?
 
-    built_images(maintained_ruby_versions)
+    built_images(maintained_ruby_versions, TEST_REPO_URL)
       .tap { |images| puts "Built images for ruby versions: #{images.map { |i| i.delete_prefix(ImageLifecycleHandler::TEST_IMAGE_BASE_NAME)}.join(', ') }" }
-      .tap { |images| start_containers_from_images(images, TEST_BRANCHES) }
+      .tap { |images| start_containers_from_images(images, test_branches(TEST_REPO_URL)) }
       .each { |i| remove_image(i) }
   end
 end

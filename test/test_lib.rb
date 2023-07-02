@@ -43,4 +43,16 @@ module TestLibrary
   def pwd_root_of_project?
     Dir.new(Dir.pwd).children.include?('get.gemspec')
   end
+
+  def test_branches(test_repo_url)
+    branches, error, status = Open3.capture3('git', 'ls-remote', '--heads', "#{test_repo_url}")
+    if status.exitstatus.positive?
+      warn_and_exit "Failed to retrieve test branches: #{error}"
+    else
+      branches
+        .split("\n")
+        .map { |b| b.split("\t").last.delete_prefix("refs/heads/") }
+        .reject { |b| b == 'main' }
+    end
+  end
 end
