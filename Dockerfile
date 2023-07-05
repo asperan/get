@@ -16,8 +16,8 @@ COPY --from=build /get/git_toolbox.gem ./
 
 RUN gem install "git_toolbox.gem"
 
-ARG TEST_REPO_URL
 FROM install AS test
+ARG TEST_REPO_URL
 
 RUN apt-get update && apt-get install -y git
 
