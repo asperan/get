@@ -23,6 +23,15 @@ require_relative './command_issuer'
 module Git
   # Groups: 1 = type, 2 = scope with (), 3 = scope, 4 = breaking change, 5 = summary
   CONVENTIONAL_COMMIT_REGEX = %r{^(\w+)(\(([\w/-]+)\))?(!)?:(.*)}
+  DEFAULT_RELEASE_VERSION = '0.1.0'
+  # Groups:
+  # 1 = full stable version ; 2,3,4 = major,minor,patch
+  # 5 = prerelease ; 6 = metadata
+  FULL_SEMANTIC_VERSION_REGEX = /
+      ^((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)) # Stable version, major, minor, patch
+      (?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))? # prerelease
+      (?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$ # metadata
+    /x
 
   # Check if the command is called while in a git repository.
   # If the command fails, it is assumed to not be in a git repository.

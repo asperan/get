@@ -38,13 +38,6 @@ class Describe < Command
   include PrereleaseHandler
   include MetadataHandler
 
-  DEFAULT_RELEASE_VERSION = '0.1.0'
-  FULL_SEMANTIC_VERSION_REGEX = /
-      ^((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)) # Stable version, major, minor, patch
-      (?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))? # prerelease
-      (?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$ # metadata
-    /x
-
   def initialize
     super() do
       @usage = 'describe -h|(<subcommand> [<subcommand-options])'
@@ -96,7 +89,7 @@ class Describe < Command
 
   def prepare_prerelease_tag(last_release, last_version)
     new_stable_version = updated_stable_version(last_release)
-    base_version_match_data = FULL_SEMANTIC_VERSION_REGEX.match(last_version)
+    base_version_match_data = Git::FULL_SEMANTIC_VERSION_REGEX.match(last_version)
     no_changes_from_last_release = base_version_match_data[1] == new_stable_version && base_version_match_data[5].nil?
     Common.error 'No changes from last release' if no_changes_from_last_release
     new_stable_version +
@@ -104,7 +97,7 @@ class Describe < Command
   end
 
   def updated_stable_version(stable_version)
-    return DEFAULT_RELEASE_VERSION if stable_version.nil?
+    return Git::DEFAULT_RELEASE_VERSION if stable_version.nil?
 
     greatest_change_from_stable_version = Git.with_commit_list_from(stable_version) do |commits_from_version|
       greatest_change_in(commits_from_version)
