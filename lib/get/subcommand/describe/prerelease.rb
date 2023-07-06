@@ -28,19 +28,14 @@ module PrereleaseHandler
   Common.module_instance_attr(self, 'old_prerelease_pattern', 'proc { prerelease_pattern }')
 
   def compute_prerelease(current_prerelease, need_reset: false)
-    new_prerelease = (need_reset ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
+    pattern_changed = PrereleaseHandler.prerelease_pattern != actual_old_prerelease_pattern
+    new_prerelease = (need_reset || pattern_changed ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
     PrereleaseHandler.prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, new_prerelease)
   end
 
   private
 
   def extract_prerelease_number(current_prerelease)
-    actual_old_prerelease_pattern =
-      if PrereleaseHandler.old_prerelease_pattern.respond_to?('call')
-        PrereleaseHandler.old_prerelease_pattern.call
-      else
-        PrereleaseHandler.old_prerelease_pattern
-      end
     Common.error "The given old pattern does not contains the placeholder '(p)'" unless
       actual_old_prerelease_pattern.include?(PRERELEASE_PLACEHOLDER)
     old_prerelease_regex = actual_old_prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, '(\\d+)')
@@ -49,6 +44,14 @@ module PrereleaseHandler
     rescue NoMethodError
       Common.error "The given old prerelease pattern '#{actual_old_prerelease_pattern}' " \
                    "does not match the analyzed prerelease: '#{current_prerelease}'."
+    end
+  end
+
+  def actual_old_prerelease_pattern
+    if PrereleaseHandler.old_prerelease_pattern.respond_to?('call')
+      PrereleaseHandler.old_prerelease_pattern.call
+    else
+      PrereleaseHandler.old_prerelease_pattern
     end
   end
 end
