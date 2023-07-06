@@ -61,7 +61,7 @@ module Git
   # Returns the last release and caches it for the next calls.
   def self.last_release
     @last_release ||=
-      CommandIssuer.run('git', '--no-pager', 'tag', '--list')
+      CommandIssuer.run('git', '--no-pager', 'tag', '--list', '--merged')
                    .then do |value|
         unless value.output.empty?
           value.output
