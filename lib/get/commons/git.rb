@@ -75,6 +75,7 @@ module Git
         unless value.output.empty?
           value.output
                .split("\n")
+               .select { |str| str.match(FULL_SEMANTIC_VERSION_REGEX)[5].nil? }
                .map { |str| str.sub('+', '_') }
                .sort
                .map { |str| str.sub('_', '+') }
