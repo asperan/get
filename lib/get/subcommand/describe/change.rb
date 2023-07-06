@@ -61,8 +61,8 @@ module ChangeHandler
   def to_change(commit_message)
     groups = Git::CONVENTIONAL_COMMIT_REGEX.match(commit_message)
     return :MAJOR if triggers_major?(groups[1], groups[3], !groups[4].nil?)
-    return :MINOR if triggers_minor?(groups[1], groups[2])
-    return :PATCH if triggers_patch?(groups[1], groups[2])
+    return :MINOR if triggers_minor?(groups[1], groups[3])
+    return :PATCH if triggers_patch?(groups[1], groups[3])
 
     :NONE
   end
