@@ -28,6 +28,10 @@ module BashCompletion
   private
 
   INITIAL_LEVEL = 1
+  NOT_NEGABLE_OPTIONS = [
+    'help',
+    'version',
+  ].freeze
 
   HEADER = <<~HEADER
     #!/usr/bin/env bash
@@ -77,6 +81,7 @@ module BashCompletion
 
     command_class.instance.option_parser.specs.each_value do |option|
       long_options.push("--#{option.long}")
+      long_options.push("--no-#{option.long}") if option.flag? && !NOT_NEGABLE_OPTIONS.include?(option.long)
       short_options.push("-#{option.short.nil? ? option.long[0] : option.short}") if option.short != :none
     end
 
