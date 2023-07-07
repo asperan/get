@@ -33,10 +33,17 @@ class Complete < Command
   def initialize
     super() do
       @usage = 'complete -h|(<subcommand> [<subcommand-options])'
-      @description = 'Print the shell completion script.'
+      @description = 'Print the shell completion script. ' \
+                     'Run \'get complete --info\' to learn how to install the completion.'
       @subcommands = {}
       @completions = {
-        bash: proc { bash_completion(Get, 'get') }
+        bash: {
+          generator: proc { bash_completion(Get, 'get') },
+          info: <<~INFO
+            Add the following line to your .bashrc (or a sourced script):
+            eval "$(get complete)" && complete -F _get_completion get
+          INFO
+        }
       }
     end
   end
@@ -54,6 +61,9 @@ class Complete < Command
       opt :shell,
           'Select the type of shell of which the completion will be generated.',
           { type: :string, default: 'bash' }
+      opt :info,
+          'Print the instructions to install the completion for the selected shell.',
+          { short: :none }
       educate_on_error
       stop_on stop_condition
     end
@@ -67,10 +77,17 @@ class Complete < Command
 
       selected_shell = @options[:shell].to_sym
 
+      print_info_and_exit(selected_shell) if @options[:info]
+
       Common.error "Completion for shell '#{selected_shell}' not available." unless @completions.key?(selected_shell)
 
-      puts @completions[selected_shell].call
+      puts @completions[selected_shell][:generator].call
     end
+  end
+
+  def print_info_and_exit(selected_shell)
+    puts @completions[selected_shell][:info]
+    exit 0
   end
 end
 # rubocop:enable Metrics/ClassLength
