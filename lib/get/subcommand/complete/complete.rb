@@ -35,6 +35,9 @@ class Complete < Command
       @usage = 'complete -h|(<subcommand> [<subcommand-options])'
       @description = 'Print the shell completion script.'
       @subcommands = {}
+      @completions = {
+        bash: proc { bash_completion(Get, 'get') }
+      }
     end
   end
 
@@ -61,10 +64,6 @@ class Complete < Command
       @options = Common.with_subcommand_exception_handling @option_parser do
         @option_parser.parse
       end
-
-      @completions = {
-        bash: proc { bash_completion(Get, 'get') }
-      }
 
       selected_shell = @options[:shell].to_sym
 
