@@ -89,11 +89,16 @@ class Describe < Command
 
   def prepare_prerelease_tag(last_release, last_version)
     new_stable_version = updated_stable_version(last_release)
-    base_version_match_data = Git::FULL_SEMANTIC_VERSION_REGEX.match(last_version)
-    no_changes_from_last_release = base_version_match_data[1] == new_stable_version && base_version_match_data[5].nil?
-    Common.error 'No changes from last release' if no_changes_from_last_release
     new_stable_version +
-      "-#{updated_prerelease(base_version_match_data[5], need_reset: base_version_match_data[1] != new_stable_version)}"
+      "-#{if last_version.nil?
+            updated_prerelease
+          else
+            base_version_match_data = Git::FULL_SEMANTIC_VERSION_REGEX.match(last_version)
+            no_changes_from_last_release = base_version_match_data[1] == new_stable_version &&
+                                           base_version_match_data[5].nil?
+            Common.error 'No changes from last release' if no_changes_from_last_release
+            updated_prerelease(base_version_match_data[5], need_reset: base_version_match_data[1] != new_stable_version)
+          end}"
   end
 
   def updated_stable_version(stable_version)
