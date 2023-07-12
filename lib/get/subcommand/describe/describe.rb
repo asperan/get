@@ -93,20 +93,6 @@ class Describe < Command
     end
   end
 
-  # Return the updated prerelease number
-  def updated_prerelease(last_version, new_stable_version)
-    if last_version.nil?
-      compute_prerelease(nil, need_reset: true)
-    else
-      base_version_match_data = Git::FULL_SEMANTIC_VERSION_REGEX.match(last_version)
-      no_changes_from_last_release = base_version_match_data[1] == new_stable_version &&
-                                     base_version_match_data[5].nil?
-      Common.error 'No changes from last release' if no_changes_from_last_release
-      compute_prerelease(base_version_match_data[5], need_reset: base_version_match_data[1] != new_stable_version)
-    end
-  end
-
-  # Compute the metadata string
   def metadata
     return '' if @options[:exclude_metadata] || @options[:metadata].empty?
 
