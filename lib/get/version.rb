@@ -17,4 +17,4 @@
 
 # frozen_string_literal: true
 
-GET_VERSION = '0.8.0'
+GET_VERSION = '0.9.0'
