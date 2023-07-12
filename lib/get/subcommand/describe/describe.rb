@@ -93,25 +93,6 @@ class Describe < Command
     end
   end
 
-  def updated_stable_version(stable_version)
-    return Git::DEFAULT_RELEASE_VERSION if stable_version.nil?
-
-    greatest_change_from_stable_version = Git.with_commit_list_from(stable_version) do |commits_from_version|
-      greatest_change_in(commits_from_version)
-    end
-    split_version = stable_version.split('.')
-    case greatest_change_from_stable_version
-    when :MAJOR
-      "#{split_version[0].to_i + 1}.0.0"
-    when :MINOR
-      "#{split_version[0].to_i}.#{split_version[1].to_i + 1}.0"
-    when :PATCH
-      "#{split_version[0].to_i}.#{split_version[1].to_i}.#{split_version[2].to_i + 1}"
-    else
-      "#{split_version[0].to_i}.#{split_version[1].to_i}.#{split_version[2].to_i}"
-    end
-  end
-
   # Return the updated prerelease number
   def updated_prerelease(last_version, new_stable_version)
     if last_version.nil?

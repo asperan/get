@@ -30,14 +30,33 @@ module ChangeHandler
   Common.module_instance_attr(self, 'minor_trigger', :DEFAULT_MINOR_TRIGGER)
   Common.module_instance_attr(self, 'patch_trigger', :DEFAULT_PATCH_TRIGGER)
 
+  def updated_stable_version(stable_version)
+    return Git::DEFAULT_RELEASE_VERSION if stable_version.nil?
+
+    greatest_change_from_stable_version = Git.with_commit_list_from(stable_version) do |commits_from_version|
+      greatest_change_in(commits_from_version)
+    end
+    split_version = stable_version.split('.')
+    case greatest_change_from_stable_version
+    when :MAJOR
+      "#{split_version[0].to_i + 1}.0.0"
+    when :MINOR
+      "#{split_version[0].to_i}.#{split_version[1].to_i + 1}.0"
+    when :PATCH
+      "#{split_version[0].to_i}.#{split_version[1].to_i}.#{split_version[2].to_i + 1}"
+    else
+      "#{split_version[0].to_i}.#{split_version[1].to_i}.#{split_version[2].to_i}"
+    end
+  end
+
+  private
+
   def greatest_change_in(commit_list)
     commit_list
       .grep(Git::CONVENTIONAL_COMMIT_REGEX)
       .map { |commit| to_change(commit) }
       .max { |a, b| CHANGE_TYPE.index(a) <=> CHANGE_TYPE.index(b) }
   end
-
-  private
 
   # In this block method arguments can be used by user.
   # Also `eval` is needed to allow users to define their custom triggers.
