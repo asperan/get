@@ -29,7 +29,11 @@ module PrereleaseHandler
 
   def compute_prerelease(current_prerelease, need_reset: false)
     pattern_changed = PrereleaseHandler.prerelease_pattern != actual_old_prerelease_pattern
-    new_prerelease = (need_reset || pattern_changed ? FIRST_PRERELEASE : (extract_prerelease_number(current_prerelease) + 1)).to_s
+    new_prerelease = if need_reset || pattern_changed
+                       FIRST_PRERELEASE
+                     else
+                       extract_prerelease_number(current_prerelease) + 1
+                     end.to_s
     PrereleaseHandler.prerelease_pattern.sub(PRERELEASE_PLACEHOLDER, new_prerelease)
   end
 
