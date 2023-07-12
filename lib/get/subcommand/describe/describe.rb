@@ -77,20 +77,11 @@ class Describe < Command
 
   def next_release
     if @options[:prerelease]
-      prepare_prerelease_tag(Git.last_release, Git.last_version)
+      updated_stable_version(Git.last_release)
+        .then { |stable| "#{stable}-#{updated_prerelease(Git.last_version, stable)}" }
     else
-      prepare_release_tag(Git.last_release)
+      updated_stable_version(Git.last_release).to_s
     end + metadata
-  end
-
-  def prepare_release_tag(last_release)
-    updated_stable_version(last_release).to_s
-  end
-
-  def prepare_prerelease_tag(last_release, last_version)
-    updated_stable_version(last_release).then do |stable|
-      "#{stable}-#{updated_prerelease(last_version, stable)}"
-    end
   end
 
   def metadata
