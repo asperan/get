@@ -70,21 +70,18 @@ class Tree < Command
     # calc color escape codes length
     time_color_length = first_line_time.length - first_line_time.match(TIME_REGEX)[1].length
 
-    # calc max length of time references
-    time_padding = 0
-    split_lines.each { |element| time_padding = [time_padding, element[1].length - time_color_length].max }
+    time_padding = global_fitting_time_padding(split_lines, time_color_length)
 
-    # format strings
     split_lines
       .map do |element|
         # Only lines with the date reference have the color escape codes,
         # the other lines do not need the additional padding
         left_padding = TIME_MINIMUM_PADDING + time_padding +
-                       (element[1].match?(TIME_REGEX) ? time_color_length : 0)
+          (!element[1].nil? && element[1].match?(TIME_REGEX) ? time_color_length : 0)
         format(
           '%<date>s %<tree_mark>s %<pointers>s %<commit_text>s',
           {
-            date: element[1].rjust(left_padding),
+            date: (element[1].nil? ? '' : element[1]).rjust(left_padding),
             tree_mark: element[0],
             pointers: element[2],
             commit_text: element[3]
@@ -94,6 +91,16 @@ class Tree < Command
       .join("\n")
   end
   # rubocop:enable Metrics/MethodLength
+
+  def global_fitting_time_padding(lines, time_color_length)
+    time_padding = 0
+    lines
+      # If element[1].nil? then the line refers to a intersection between branch lines
+      # they do not have a time reference
+      .reject { |element| element[1].nil? }
+      .each { |element| time_padding = [time_padding, element[1].length - time_color_length].max }
+    time_padding
+  end
 
   protected
 
