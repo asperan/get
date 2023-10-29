@@ -1,3 +1,6 @@
+# NOTICE
+This repository is no longer updated. To continue use this functionalities, go to [gitbox repository](https://github.com/asperan/gitbox), which is the spiritual successor of Get.
+
 # Get
 Get is a toolbox based on git. Get simplifies the adoption of semantic version, conventional commits and good licensing, other than some shortcuts to git commands.
 
